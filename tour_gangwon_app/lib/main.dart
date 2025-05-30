@@ -7,6 +7,7 @@ import 'screens/mypage_screen.dart';
 import 'screens/date_selection_screen.dart';
 import 'screens/recommendation_list_screen.dart';
 import 'screens/recommendation_detail_screen.dart';
+import 'screens/search_result_list_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
             itemDescription: args['description']!,
           );
         },
+        '/search_result_list': (context) => const SearchResultListScreen(),
       },
     );
   }

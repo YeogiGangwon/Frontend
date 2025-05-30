@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tour_gangwon_app/widgets/common_list_view.dart'; // Import the new widget
 
 class RecommendationListScreen extends StatelessWidget {
   final DateTime? date; // 날짜 선택 화면으로부터 전달받을 날짜
@@ -29,62 +30,10 @@ class RecommendationListScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            if (date != null)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: Text(
-                  '선택된 날짜: ${date!.toLocal()}'.split(' ')[0],
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              )
-            else
-              const Padding(
-                padding: EdgeInsets.only(bottom: 20.0),
-                child: Text(
-                  '날짜 정보 없음',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
-                ),
-              ),
-            Text(
-              date != null ? '${date!.month}월 ${date!.day}일 추천 항목:' : '오늘의 추천 항목:',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _recommendations.length,
-                itemBuilder: (context, index) {
-                  final item = _recommendations[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: ListTile(
-                      leading: const Icon(Icons.star, color: Colors.amber),
-                      title: Text(item['title']!),
-                      subtitle: Text(
-                        item['description']!,
-                        maxLines: 2, // 설명을 두 줄까지만 표시
-                        overflow: TextOverflow.ellipsis, // 넘어가는 텍스트는 ...으로 표시
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios),
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/recommendation_detail',
-                          arguments: {
-                            'title': item['title']!,
-                            'description': item['description']!,
-                          },
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
+        child: CommonListView(
+          items: _recommendations,
+          listTitle: date != null ? '${date!.month}월 ${date!.day}일 추천 항목:' : '오늘의 추천 항목:',
+          date: date,
         ),
       ),
     );

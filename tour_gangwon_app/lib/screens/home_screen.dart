@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:tour_gangwon_app/widgets/notification_popup.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final TextEditingController _searchController = TextEditingController();
 
   // 임시 추천 랭킹 데이터 (강원도 관광지)
   final List<Map<String, String>> _rankingData = const [
@@ -40,12 +48,31 @@ class HomeScreen extends StatelessWidget {
   ];
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('투어 강원'),
         // automaticallyImplyLeading: false, // Remove or set to true to allow Drawer icon
         actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.notifications_none_outlined), // Bell icon
+            tooltip: '알림',
+            onPressed: () {
+              // Show notification popup
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return const NotificationPopup();
+                },
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.person_outline),
             tooltip: '마이페이지',
@@ -71,12 +98,62 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: '검색...',
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                      onChanged: (value) {
+                        // TODO: Implement search logic
+                        print('Search query: $value');
+                        if (value == '검색') {
+                          Navigator.pop(context); // Close the drawer
+                          Navigator.pushNamed(context, '/search_result_list');
+                        }
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () {
+                      if (_searchController.text == '검색') {
+                        Navigator.pop(context); // Close the drawer
+                        Navigator.pushNamed(context, '/search_result_list');
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
             ListTile(
               leading: const Icon(Icons.home_outlined),
               title: const Text('홈'),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
                 // Optionally, navigate to home if not already there or refresh
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.favorite_border_outlined),
+              title: const Text('즐겨찾기'),
+              onTap: () {
+                // TODO: 즐겨찾기 화면으로 이동 또는 즐겨찾기 목록 표시
+                Navigator.pop(context); // Close the drawer
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('즐겨찾기 기능 준비 중입니다.')),
+                );
               },
             ),
             ListTile(
