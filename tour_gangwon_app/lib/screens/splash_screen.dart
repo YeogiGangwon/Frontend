@@ -28,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
             FlutterLogo(size: 100),
             SizedBox(height: 20),
             Text(
-              '처음처럼 강원', // TODO: 앱 이름으로 변경
+              '처음처럼 강원',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ],
