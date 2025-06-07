@@ -1,3 +1,4 @@
+// tour_gangwon_app/lib/main.dart
 import 'package:flutter/material.dart';
 import 'screens/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
@@ -5,9 +6,10 @@ import 'screens/auth/signup_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/mypage_screen.dart';
 import 'screens/date_selection_screen.dart';
-import 'screens/recommendation_list_screen.dart';
+import 'screens/recommendation_list_screen.dart'; // 이전에 있던 것과 이름 충돌에 주의
 import 'screens/recommendation_detail_screen.dart';
 import 'screens/search_result_list_screen.dart';
+import 'screens/favorites_list_screen.dart'; // 추가
 
 void main() {
   runApp(const MyApp());
@@ -41,6 +43,7 @@ class MyApp extends StatelessWidget {
           );
         },
         '/search_result_list': (context) => const SearchResultListScreen(),
+        '/favorites_list': (context) => const FavoritesListScreen(), // 추가
       },
     );
   }
