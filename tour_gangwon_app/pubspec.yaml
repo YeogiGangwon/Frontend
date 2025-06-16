@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.8.0
+  sdk: '>=3.8.0 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  intl: ^0.18.1
   http: ^1.2.1
   json_annotation: ^4.9.0
   cupertino_icons: ^1.0.8
@@ -53,11 +54,18 @@ flutter:
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
+  uses-material-design: true
   # the material Icons class.
   assets:
     - assets/images/splash_logo.png
+    - assets/images/logo.png
+    - assets/images/menu.png
+    - assets/images/notifi.png
+    - assets/images/plane.png
+    - assets/images/beach1.png
+    - assets/images/beach2.png
+
 # For information on the generic Dart 
-  uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -91,5 +99,3 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
 # tour_gangwon_app/pubspec.yaml
-
-

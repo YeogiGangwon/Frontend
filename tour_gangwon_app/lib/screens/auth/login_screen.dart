@@ -3,72 +3,208 @@ import 'package:flutter/material.dart';
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  Future<void> _loginWithKakao(BuildContext context) async {
-    // TODO: 카카오 로그인 로직 구현
-    // 성공 시 홈 화면으로 이동
-    Navigator.pushReplacementNamed(context, '/home');
-  }
-
   @override
   Widget build(BuildContext context) {
+    final idController = TextEditingController();
+    final pwController = TextEditingController();
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(' '),
-        automaticallyImplyLeading: false,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Icon(Icons.flutter_dash, size: 80, color: Colors.blue), // 임시 로고
-              const SizedBox(height: 20),
-              const Text(
-                '처음처럼 떠나는 강원도 여행',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                '쾌적한 여행을 원하는 당신, 지금 처음처럼 떠나보세요',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 40),
-              ElevatedButton(
-                onPressed: () => _loginWithKakao(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.yellow, // 카카오 색상과 유사하게
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  textStyle: const TextStyle(fontSize: 18, color: Colors.black87),
+      body: ListView(
+         padding: EdgeInsets.only(
+    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+  ),
+        children: [
+          Container(
+            width: double.infinity,
+            height: 884,
+            padding: const EdgeInsets.only(top: 116, left: 72, right: 72, bottom: 100),
+            decoration: const BoxDecoration(color: Color(0xFFF3F5F6)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // 로고
+                Container(
+                  width: 157,
+                  height: 157,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage("assets/images/logo.png"),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // TODO: 카카오 아이콘 추가 (예: Image.asset)
-                    Icon(Icons.chat_bubble, color: Colors.black87), // 임시 아이콘
-                    SizedBox(width: 10),
-                    Text('카카오 로그인', style: TextStyle(color: Colors.black87)),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20), // 로그인 버튼과 회원가입 버튼 사이 간격
-              TextButton(
-                onPressed: () {
-                  // TODO: 회원가입 화면으로 이동 로직 구현
-                  print('회원가입 버튼 클릭됨');
-                  Navigator.pushNamed(context, '/signup'); // 회원가입 화면으로 이동
-                },
-                child: const Text(
-                  '회원가입',
-                  style: TextStyle(fontSize: 16, color: Colors.blue),
-                ),
-              ),
-            ],
-          ),
+                const SizedBox(height: 24),
+
+                // 입력폼 박스
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: ShapeDecoration(
+                    color: const Color(0xFFF3F5F6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      // ID 라벨
+                      const Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          'ID',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFF1E1E1E),
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w400,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // ID 입력창
+                      TextField(
+                        controller: idController,
+                        decoration: InputDecoration(
+                          hintText: '아이디를 입력하세요',
+                          hintStyle: const TextStyle(
+                            color: Color(0xFFB3B3B3),
+                            fontSize: 16,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w400,
+                            height: 1,
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: Color(0xFFD9D9D9), width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: Color(0xFF002C50), width: 1),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // PW 라벨
+                      const Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Password',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Color(0xFF1E1E1E),
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w400,
+                          ),
+                        textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // PW 입력창
+                      TextField(
+                        controller: pwController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          hintText: '비밀번호를 입력하세요',
+                          hintStyle: const TextStyle(
+                            color: Color(0xFFB3B3B3),
+                            fontSize: 16,
+                            fontFamily: 'Inter',
+                            fontWeight: FontWeight.w400,
+                            height: 1,
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: Color(0xFFD9D9D9), width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(color: Color(0xFF002C50), width: 1),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // 로그인 버튼
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            print('ID: ${idController.text}');
+                            print('PW: ${pwController.text}');
+                            Navigator.pushReplacementNamed(context, '/home');
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF002C50),
+                            foregroundColor: Colors.white,                // ✅ 텍스트 색 명시!
+                            padding: const EdgeInsets.all(12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text(
+          'Sign In',
+  style: TextStyle(
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+  ),
+),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 회원가입/비번찾기
+                      Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    TextButton(
+      onPressed: () {
+        Navigator.pushNamed(context, '/signup'); // 회원가입 화면 이동
+      },
+      child: const Text(
+        '회원가입',
+        style: TextStyle(
+          decoration: TextDecoration.underline,
+          fontSize: 16,
+          color: Color(0xFF1E1E1E),
         ),
+      ),
+    ),
+    const SizedBox(width: 22),
+    TextButton(
+      onPressed: () {
+        // TODO: 비밀번호 찾기 화면 연결할 거면 여기에 추가
+        print('비밀번호 찾기 클릭됨');
+      },
+      child: const Text(
+        '비밀번호 찾기',
+        style: TextStyle(
+          decoration: TextDecoration.underline,
+          fontSize: 16,
+          color: Color(0xFF1E1E1E),
+        ),
+      ),
+    ),
+  ],
+),
+
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
-} 
+}
