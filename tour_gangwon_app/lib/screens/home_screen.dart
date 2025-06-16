@@ -1,13 +1,8 @@
-// tour_gangwon_app/lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
-import 'package:tour_gangwon_app/widgets/custom_home_app_bar.dart';
-import 'package:tour_gangwon_app/widgets/home_banner_carousel.dart';
-import 'package:tour_gangwon_app/widgets/category_grid.dart';
-import 'package:tour_gangwon_app/widgets/news_card_list.dart';
-import 'package:tour_gangwon_app/services/photo_api_service.dart'; // 추가
-import 'package:tour_gangwon_app/models/photo_model.dart'; // 추가
-import 'package:tour_gangwon_app/widgets/notification_popup.dart';
-
+import 'package:tour_gangwon_app/services/photo_api_service.dart';
+import 'package:tour_gangwon_app/models/photo_model.dart';
+import 'package:tour_gangwon_app/screens/recommendation_list_screen.dart';
+import 'package:tour_gangwon_app/screens/date_selection_screen.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -16,196 +11,290 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  String _selectedLocation = '강원도'; // 초기 위치를 강원도로 변경 (더 적합하게)
-
-  late Future<List<Photo>> _photosFuture; // 추가
   late Future<List<Photo>> _bannersFuture;
 
-  List<CategoryItem> get _categoryItems => [
-    CategoryItem(icon: Icons.local_bar, label: '여행지 추천', onTap: () {}),
-    CategoryItem(icon: Icons.place, label: '랜덤 여행', onTap: () {}),
-    CategoryItem(icon: Icons.favorite, label: '코스 계획하기', onTap: () {}),
-    CategoryItem(icon: Icons.liquor, label: '여긴 뭐 쓰지..', onTap: () {}),
+  final List<Map<String, String>> _categoryItems = [
+    {
+      'title': '무계획 여행 떠나기',
+      'subtitle': '여행지를 랜덤으로 추천',
+      'image': 'assets/images/plane.png'
+    },
+    {
+      'title': '혼잡도 여행지 추천',
+      'subtitle': '혼잡도에 맞춰 여행지를 추천',
+      'image': 'assets/images/plane.png'
+    },
+    {
+      'title': '풀 코스 여행 계획',
+      'subtitle': '코스를 짜주는 서비스',
+      'image': 'assets/images/plane.png'
+    },
   ];
 
-  final List<String> _newsList = [
-    '뉴스1', '뉴스2', '뉴스3', '뉴스4', '뉴스5',
-    '뉴스6', '뉴스7', '뉴스8', '뉴스9', '뉴스10'
-  ];
+  final List<Map<String, String>> _todayInfoItems = List.generate(
+    5,
+    (index) => {
+      'title': 'List item',
+      'desc': 'Supporting line text lorem ipsum dolor sit amet, consectetur.',
+      'image': 'https://placehold.co/56x56'
+    },
+  );
 
   @override
   void initState() {
     super.initState();
-    _bannersFuture = PhotoApiService().fetchPhotos(numOfRows: 10, keyword: '강원');
-    _photosFuture = PhotoApiService().fetchPhotos(numOfRows: 20); // 기존 사진 섹션용
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+    _bannersFuture = PhotoApiService().fetchPhotos(numOfRows: 5);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomHomeAppBar(
-        location: _selectedLocation,
-        searchController: _searchController,
-        hasNotification: true,
-        onLocationTap: () {},
-        onSearch: () {
-          Navigator.pushNamed(context, '/search_result_list'); // 검색 결과 화면으로 이동
-        },
-        onBookmark: () {
-          Navigator.pushNamed(context, '/favorites_list'); // 즐겨찾기 화면으로 이동 (추가 필요)
-        },
-        onNotification: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return const NotificationPopup(); // 알림 팝업 표시
-            },
-          );
-        },
+      drawer: Drawer(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          children: const [
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('마이페이지'),
+            ),
+            ListTile(
+              leading: Icon(Icons.star_border),
+              title: Text('즐겨찾기'),
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('로그아웃'),
+            ),
+          ],
+        ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: const Color(0xFFF2F4F6),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: Container(
+          color: const Color(0xFFF3F5F6),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SafeArea(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Image.asset(
+                  'assets/images/logo.png',
+                  width: 32,
+                  height: 32,
+                ),
+                Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: Colors.grey[300],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Image.asset('assets/images/notifi.png'),
+                      ),
+                    ),
+                    Builder(
+                      builder: (context) => GestureDetector(
+                        onTap: () {
+                          Scaffold.of(context).openDrawer();
+                        },
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            color: Colors.grey[300],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Image.asset('assets/images/menu.png'),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+        child: ListView(
           children: [
             FutureBuilder<List<Photo>>(
               future: _bannersFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SizedBox(
-                    height: 180,
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                } else if (snapshot.hasError) {
-                  return SizedBox(
-                    height: 180,
-                    child: Center(child: Text('배너를 불러오지 못했습니다: \\${snapshot.error}')),
-                  );
+                  return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const SizedBox(
-                    height: 180,
-                    child: Center(child: Text('표시할 배너가 없습니다.')),
-                  );
+                  return const Text('배너 없음');
                 } else {
-                  final banners = snapshot.data!
-                      .map((photo) => {
-                            'image': photo.webImageUrl,
-                            'title': photo.title,
-                            'subtitle': photo.photographer,
-                          })
-                      .toList();
-                  return HomeBannerCarousel(banners: banners);
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 205,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(28),
+                            image: DecorationImage(
+                              image: NetworkImage(snapshot.data![0].webImageUrl),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 56,
+                        height: 205,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(28),
+                          image: const DecorationImage(
+                            image: NetworkImage('https://placehold.co/56x205'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      )
+                    ],
+                  );
                 }
               },
             ),
-            const SizedBox(height: 18),
-            CategoryGrid(items: _categoryItems),
-            const SizedBox(height: 18),
-            const Text(
-              '한국관광공사 추천 사진', // 새로운 섹션 제목
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: _categoryItems.asMap().entries.map((entry) {
+                final index = entry.key;
+                final item = entry.value;
+                final categoryCard = Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 120,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          image: DecorationImage(
+                            image: item['image']!.startsWith('assets')
+                                ? AssetImage(item['image']!) as ImageProvider
+                                : NetworkImage(item['image']!),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item['title']!,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF1D1B20),
+                        ),
+                      ),
+                      Text(
+                        item['subtitle']!,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF49454F),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+
+                return Expanded(
+                  child: index == 1
+  ? GestureDetector(
+      onTap: () async {
+        final selectedDate = await Navigator.push<DateTime>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const DateSelectionScreen(),
+          ),
+        );
+
+        if (selectedDate != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => SearchResultListScreen(date: selectedDate),
             ),
-            const SizedBox(height: 10),
-            // API에서 가져온 사진을 표시할 FutureBuilder
-            FutureBuilder<List<Photo>>(
-              future: _photosFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('사진을 불러오는 데 실패했습니다: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('표시할 사진이 없습니다.'));
-                } else {
-                  return GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // 한 줄에 2개의 이미지
-                      crossAxisSpacing: 10.0,
-                      mainAxisSpacing: 10.0,
-                      childAspectRatio: 0.8, // 이미지와 텍스트를 고려한 비율
-                    ),
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      final photo = snapshot.data![index];
-                      return Card(
-                        clipBehavior: Clip.antiAlias,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        elevation: 3,
+          );
+        }
+      },
+      child: categoryCard,
+    )
+  : categoryCard,
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              "Today's INFO",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Column(
+              children: _todayInfoItems.map((item) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F5F6),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFCAC4D0)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          image: DecorationImage(
+                            image: NetworkImage(item['image']!),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Image.network(
-                                photo.webImageUrl,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    color: Colors.grey[200],
-                                    child: const Icon(Icons.image_not_supported, color: Colors.grey, size: 50),
-                                  );
-                                },
+                            Text(
+                              item['title']!,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                                color: Color(0xFF1D1B20),
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    photo.title,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '작가: ${photo.photographer}',
-                                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
+                            Text(
+                              item['desc']!,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF49454F),
                               ),
                             ),
                           ],
                         ),
-                      );
-                    },
-                  );
-                }
-              },
+                      )
+                    ],
+                  ),
+                );
+              }).toList(),
             ),
-            const SizedBox(height: 18),
-            NewsCardList(newsList: _newsList),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-          BottomNavigationBarItem(icon: Icon(Icons.location_on), label: '내 주변'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: '마이다이닝'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'MY'),
-        ],
-        currentIndex: 0,
-        onTap: (index) {
-          // TODO: 각 탭에 맞는 화면으로 이동 로직 구현
-          if (index == 3) { // MY 탭 (index 3) 클릭 시 마이페이지로 이동
-            Navigator.pushNamed(context, '/mypage');
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Theme.of(context).primaryColor, // 선택된 아이템 색상
-        unselectedItemColor: Colors.grey, // 선택되지 않은 아이템 색상
       ),
     );
   }
