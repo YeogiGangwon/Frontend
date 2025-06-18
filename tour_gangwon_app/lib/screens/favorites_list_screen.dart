@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tour_gangwon_app/widgets/common_list_view.dart';
+import 'package:tour_gangwon_app/widgets/menu_bar.dart';
 
 class FavoritesListScreen extends StatelessWidget {
   const FavoritesListScreen({super.key});
@@ -12,16 +13,15 @@ class FavoritesListScreen extends StatelessWidget {
     },
     {
       'title': '즐겨찾기 2: 남이섬',
-      'description': '아름다운 자연 경관과 다양한 문화 예술 콘텐츠를 즐길 수 있는 섬입니다. 드라마 촬영지로도 유명합니다.',
+      'description':
+          '아름다운 자연 경관과 다양한 문화 예술 콘텐츠를 즐길 수 있는 섬입니다. 드라마 촬영지로도 유명합니다.',
     },
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('즐겨찾기'),
-      ),
+      appBar: AppBar(title: const Text('즐겨찾기')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: CommonListView(
@@ -30,6 +30,7 @@ class FavoritesListScreen extends StatelessWidget {
           // Date is not applicable for favorites, so it's omitted.
         ),
       ),
+      bottomNavigationBar: const MessageWthLink(),
     );
   }
-} 
+}

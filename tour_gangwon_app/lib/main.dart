@@ -36,17 +36,15 @@ class MyApp extends StatelessWidget {
 
         // 날짜 기반 추천 리스트로 이동
         '/search_result_list': (context) {
-          final date = ModalRoute.of(context)!.settings.arguments as DateTime;
+          final args = ModalRoute.of(context)?.settings.arguments;
+          final date = args is DateTime ? args : DateTime.now();
           return SearchResultListScreen(date: date);
         },
 
         // 상세 페이지 이동
         '/recommendation_detail': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, String>;
-          return RecommendationDetailScreen(
-            itemTitle: args['title']!,
-            itemDescription: args['description']!,
-          );
+          final args = ModalRoute.of(context)!.settings.arguments as int;
+          return RecommendationDetailScreen(placeId: args);
         },
       },
     );

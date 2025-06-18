@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:tour_gangwon_app/services/photo_api_service.dart';
-import 'package:tour_gangwon_app/models/photo_model.dart';
-import 'package:tour_gangwon_app/screens/recommendation_list_screen.dart';
+import 'package:flutter/services.dart';
+import 'package:tour_gangwon_app/screens/search_result_list_screen.dart';
 import 'package:tour_gangwon_app/screens/date_selection_screen.dart';
+import 'package:tour_gangwon_app/widgets/menu_bar.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -11,23 +13,30 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late Future<List<Photo>> _bannersFuture;
+  int _currentPage = 0;
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 0.85);
+  }
 
   final List<Map<String, String>> _categoryItems = [
     {
       'title': '무계획 여행 떠나기',
       'subtitle': '여행지를 랜덤으로 추천',
-      'image': 'assets/images/plane.png'
+      'image': 'assets/images/plane.png',
     },
     {
       'title': '혼잡도 여행지 추천',
       'subtitle': '혼잡도에 맞춰 여행지를 추천',
-      'image': 'assets/images/plane.png'
+      'image': 'assets/images/plane.png',
     },
     {
       'title': '풀 코스 여행 계획',
       'subtitle': '코스를 짜주는 서비스',
-      'image': 'assets/images/plane.png'
+      'image': 'assets/images/plane.png',
     },
   ];
 
@@ -36,14 +45,16 @@ class _HomeScreenState extends State<HomeScreen> {
     (index) => {
       'title': 'List item',
       'desc': 'Supporting line text lorem ipsum dolor sit amet, consectetur.',
-      'image': 'https://placehold.co/56x56'
+      'image': 'https://placehold.co/56x56',
     },
   );
 
-  @override
-  void initState() {
-    super.initState();
-    _bannersFuture = PhotoApiService().fetchPhotos(numOfRows: 5);
+  Future<List<Map<String, dynamic>>> loadPlaces() async {
+    final String jsonStr = await rootBundle.loadString(
+      'assets/data/places.json',
+    );
+    final List<dynamic> jsonList = json.decode(jsonStr);
+    return jsonList.cast<Map<String, dynamic>>();
   }
 
   @override
@@ -53,18 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 20),
           children: const [
-            ListTile(
-              leading: Icon(Icons.person),
-              title: Text('마이페이지'),
-            ),
-            ListTile(
-              leading: Icon(Icons.star_border),
-              title: Text('즐겨찾기'),
-            ),
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('로그아웃'),
-            ),
+            ListTile(leading: Icon(Icons.person), title: Text('마이페이지')),
+            ListTile(leading: Icon(Icons.star_border), title: Text('즐겨찾기')),
+            ListTile(leading: Icon(Icons.logout), title: Text('로그아웃')),
           ],
         ),
       ),
@@ -78,11 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Image.asset(
-                  'assets/images/logo.png',
-                  width: 32,
-                  height: 32,
-                ),
+                Image.asset('assets/images/logo.png', width: 32, height: 32),
                 Row(
                   children: [
                     Container(
@@ -118,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -128,46 +126,161 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
         child: ListView(
           children: [
-            FutureBuilder<List<Photo>>(
-              future: _bannersFuture,
+            // 추천 여행지 섹션 (상단, place.json 사용)
+            FutureBuilder<List<Map<String, dynamic>>>(
+              future: loadPlaces(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Text('배너 없음');
-                } else {
-                  return Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 205,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(28),
-                            image: DecorationImage(
-                              image: NetworkImage(snapshot.data![0].webImageUrl),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 56,
-                        height: 205,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(28),
-                          image: const DecorationImage(
-                            image: NetworkImage('https://placehold.co/56x205'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      )
-                    ],
+                if (!snapshot.hasData) {
+                  return const SizedBox(
+                    height: 260,
+                    child: Center(child: CircularProgressIndicator()),
                   );
                 }
+                final places = snapshot.data!;
+                return Column(
+                  children: [
+                    SizedBox(
+                      height: 260,
+                      child: PageView.builder(
+                        itemCount: places.length,
+                        controller: _pageController,
+                        onPageChanged: (idx) {
+                          setState(() {
+                            _currentPage = idx;
+                          });
+                        },
+                        itemBuilder: (context, idx) {
+                          final place = places[idx];
+                          final String imagePath =
+                              'assets/images/${place['id']}.jpg';
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 8,
+                            ),
+                            child: Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Image.asset(
+                                    imagePath,
+                                    width: double.infinity,
+                                    height: 260,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Positioned(
+                                  left: 0,
+                                  right: 0,
+                                  top: 0,
+                                  bottom: 0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.black.withOpacity(0.25),
+                                          Colors.black.withOpacity(0.45),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  left: 18,
+                                  top: 18,
+                                  right: 18,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        place['name'],
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          height: 1.2,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black54,
+                                              blurRadius: 4,
+                                              offset: Offset(1, 1),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        place['description'],
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w400,
+                                          height: 1.3,
+                                          shadows: [
+                                            Shadow(
+                                              color: Colors.black38,
+                                              blurRadius: 2,
+                                              offset: Offset(1, 1),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Positioned(
+                                  right: 16,
+                                  bottom: 16,
+                                  child: Text(
+                                    'METIZEN',
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.85),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      letterSpacing: 1.2,
+                                      shadows: const [
+                                        Shadow(
+                                          color: Colors.black38,
+                                          blurRadius: 2,
+                                          offset: Offset(1, 1),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(places.length, (idx) {
+                        return Container(
+                          width: 8,
+                          height: 8,
+                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _currentPage == idx
+                                ? const Color(0xFF2250FF)
+                                : Colors.grey[300],
+                          ),
+                        );
+                      }),
+                    ),
+                  ],
+                );
               },
             ),
             const SizedBox(height: 16),
+            // 나머지 컨텐츠 (카테고리, Today Info 등)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: _categoryItems.asMap().entries.map((entry) {
@@ -212,27 +325,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 return Expanded(
                   child: index == 1
-  ? GestureDetector(
-      onTap: () async {
-        final selectedDate = await Navigator.push<DateTime>(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const DateSelectionScreen(),
-          ),
-        );
+                      ? GestureDetector(
+                          onTap: () async {
+                            final selectedDate = await Navigator.push<DateTime>(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const DateSelectionScreen(),
+                              ),
+                            );
 
-        if (selectedDate != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => SearchResultListScreen(date: selectedDate),
-            ),
-          );
-        }
-      },
-      child: categoryCard,
-    )
-  : categoryCard,
+                            if (selectedDate != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => SearchResultListScreen(
+                                    date: selectedDate,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          child: categoryCard,
+                        )
+                      : categoryCard,
                 );
               }).toList(),
             ),
@@ -287,7 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                 );
@@ -296,6 +411,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: const MessageWthLink(),
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 }

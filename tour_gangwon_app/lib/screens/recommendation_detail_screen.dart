@@ -1,17 +1,60 @@
 import 'package:flutter/material.dart';
+import '../models/place_model.dart';
+import '../services/place_service.dart';
 
-class RecommendationDetailScreen extends StatelessWidget {
-  final String itemTitle;
-  final String itemDescription;
+class RecommendationDetailScreen extends StatefulWidget {
+  final int placeId;
 
-  const RecommendationDetailScreen({
-    super.key,
-    required this.itemTitle,
-    required this.itemDescription,
-  });
+  const RecommendationDetailScreen({super.key, required this.placeId});
+
+  @override
+  State<RecommendationDetailScreen> createState() =>
+      _RecommendationDetailScreenState();
+}
+
+class _RecommendationDetailScreenState
+    extends State<RecommendationDetailScreen> {
+  Place? place;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPlace();
+  }
+
+  Future<void> _loadPlace() async {
+    try {
+      await PlaceService.loadPlaces(); // 캐시에 데이터 로드
+      final loadedPlace = PlaceService.getPlaceById(widget.placeId);
+      setState(() {
+        place = loadedPlace;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error loading place: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        backgroundColor: Color(0xFFF3F5F6),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (place == null) {
+      return const Scaffold(
+        backgroundColor: Color(0xFFF3F5F6),
+        body: Center(child: Text('장소 정보를 찾을 수 없습니다.')),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF3F5F6),
       body: ListView(
@@ -22,18 +65,22 @@ class RecommendationDetailScreen extends StatelessWidget {
               Container(
                 height: 412,
                 width: double.infinity,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage('assets/images/beach1.png'), // 폐하 원하신 이미지
+                    image: AssetImage(place!.image),
                     fit: BoxFit.cover,
                   ),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(28),
+                  ),
                 ),
               ),
               Container(
                 height: 412,
                 decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(28),
+                  ),
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -51,7 +98,7 @@ class RecommendationDetailScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      itemTitle,
+                      place!.name,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 36,
@@ -95,23 +142,48 @@ class RecommendationDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  itemTitle,
+                  place!.name,
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w400,
                     color: Color(0xFF1D1B20),
                   ),
-                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'Within 5 miles',
-                  style: TextStyle(
+                Text(
+                  place!.location,
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: Color(0xFF49454F),
                   ),
-                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: place!.tags
+                      .map(
+                        (tag) => Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE8DEF8),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            tag,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF65558F),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
                 ),
                 const SizedBox(height: 16),
                 const Text(
@@ -124,7 +196,7 @@ class RecommendationDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  itemDescription,
+                  place!.explain,
                   style: const TextStyle(
                     fontSize: 14,
                     color: Color(0xFF1D1B20),

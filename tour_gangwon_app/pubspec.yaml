@@ -57,13 +57,8 @@ flutter:
   uses-material-design: true
   # the material Icons class.
   assets:
-    - assets/images/splash_logo.png
-    - assets/images/logo.png
-    - assets/images/menu.png
-    - assets/images/notifi.png
-    - assets/images/plane.png
-    - assets/images/beach1.png
-    - assets/images/beach2.png
+    - assets/images/
+    - assets/data/
 
 # For information on the generic Dart 
 
