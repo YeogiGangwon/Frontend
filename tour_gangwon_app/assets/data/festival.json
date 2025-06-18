@@ -1,0 +1,38 @@
+[
+    {
+    "id": 101,
+    "name": "강릉단오제",
+    "image": "assets/images/f1.jpg",
+    "description": "",
+    "location": "강릉시",
+    "tags": [""],
+    "explain":""
+  },
+  {
+    "id": 102,
+    "name": "오션뷰테라스",
+    "image": "assets/images/f2.jpg",
+    "description": "",
+    "location": "강릉시",
+    "tags": [""],
+    "explain":""
+  },
+  {
+    "id": 103,
+    "name": "오션뷰테라스",
+    "image": "assets/images/f3.jpg",
+    "description": "",
+    "location": "강릉시",
+    "tags": [""],
+    "explain":""
+  },
+  {
+    "id": 104,
+    "name": "오션뷰테라스",
+    "image": "assets/images/f4.jpg",
+    "description": "",
+    "location": "강릉시",
+    "tags": [""],
+    "explain":""
+  }
+]

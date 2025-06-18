@@ -134,15 +134,6 @@ class _SearchResultListScreenState extends State<SearchResultListScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      '혼잡도 점수: 78',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Color(0xFF49454F),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
                                     Text(
                                       place.name,
                                       style: const TextStyle(
@@ -150,7 +141,6 @@ class _SearchResultListScreenState extends State<SearchResultListScreen> {
                                         color: Color(0xFF1D1B20),
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
                                     Text(
                                       '${place.location} · ${place.tags.join(', ')}',
                                       style: const TextStyle(

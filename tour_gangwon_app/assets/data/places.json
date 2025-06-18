@@ -70,5 +70,140 @@
     "location": "강릉시 주문진 해변",
     "tags": ["버스정류장", "포토존", "BTS"],
     "explain":"강릉 주문진 해변에 위치한 BTS 버스정류장은 방탄소년단 앨범 'YOU NEVER WALK ALONE'의 자켓 촬영지로 유명해진 곳입니다. 실제 버스가 정차하는 곳은 아니지만, 앨범 속 장면을 그대로 재현한 이곳은 전 세계 아미(ARMY)들의 성지순례 코스가 되었습니다. 푸른 바다를 배경으로 멤버들처럼 사진을 찍으며 특별한 추억을 남길 수 있습니다. 버스정류장 주변에는 BTS 관련 기념품을 판매하는 작은 가게들도 있어 팬들의 발길이 끊이지 않습니다. 방탄소년단 팬이라면 놓칠 수 없는 강릉의 이색적인 포토존에서 잊지 못할 추억을 만들어보세요"
+  },
+  {
+    "id": 9,
+    "name": "남항진해수욕장",
+    "image": "assets/images/9.jpg",
+    "description": "",
+    "location": "",
+    "tags": ["해수욕장"],
+    "explain":""
+  },
+  {
+    "id": 10,
+    "name": "강문해수욕장",
+    "image": "assets/images/10.jpg",
+    "description": "",
+    "location": "",
+    "tags": ["해수욕장"],
+    "explain":""
+  },
+  {
+    "id": 11,
+    "name": "경포해수욕장",
+    "image": "assets/images/11.jpg",
+    "description": "",
+    "location": "",
+    "tags": ["해수욕장"],
+    "explain":""
+  },
+  {
+    "id": 12,
+    "name": "소돌해수욕장",
+    "image": "assets/images/12.jpg",
+    "description": "",
+    "location": "",
+    "tags": ["해수욕장"],
+    "explain":""
+  },
+  {
+    "id": 13,
+    "name": "염전해수욕장",
+    "image": "assets/images/13.jpg",
+    "description": "",
+    "location": "강릉시",
+    "tags": ["해수욕장"],
+    "explain":""
+  },
+  {
+    "id": 14,
+    "name": "영진해수욕장",
+    "image": "assets/images/14.jpg",
+    "description": "",
+    "location": "강릉시",
+    "tags": ["해수욕장"],
+    "explain":""
+  },
+  {
+    "id": 15,
+    "name": "정동진해수욕장",
+    "image": "assets/images/15.jpg",
+    "description": "",
+    "location": "강릉시",
+    "tags": ["해수욕장"],
+    "explain":""
+  },
+  {
+    "id": 16,
+    "name": "공현진해수욕장",
+    "image": "assets/images/16.jpg",
+    "description": "",
+    "location": "고성군",
+    "tags": ["해수욕장"],
+    "explain":""
+  },
+  {
+    "id": 17,
+    "name": "교암해수욕장",
+    "image": "assets/images/17.jpg",
+    "description": "",
+    "location": "고성군",
+    "tags": ["해수욕장"],
+    "explain":""
+  },
+  {
+    "id": 18,
+    "name": "봉포해수욕장",
+    "image": "assets/images/18.jpg",
+    "description": "",
+    "location": "속초시",
+    "tags": ["해수욕장"],
+    "explain":""
+  },
+  {
+    "id": 19,
+    "name": "초도해수욕장",
+    "image": "assets/images/19.jpg",
+    "description": "",
+    "location": "고성군",
+    "tags": ["해수욕장"],
+    "explain":""
+  },
+  {
+    "id": 20,
+    "name": "영랑해수욕장",
+    "image": "assets/images/20.jpg",
+    "description": "",
+    "location": "속초시",
+    "tags": ["해수욕장"],
+    "explain":""
+  },
+  {
+    "id": 21,
+    "name": "하맹방해수욕장",
+    "image": "assets/images/21.jpg",
+    "description": "",
+    "location": "삼척시",
+    "tags": ["해수욕장"],
+    "explain":""
+  },
+  {
+    "id": 22,
+    "name": "원평해수욕장",
+    "image": "assets/images/22.jpg",
+    "description": "",
+    "location": "삼척시",
+    "tags": ["해수욕장"],
+    "explain":""
+  },
+  {
+    "id": 23,
+    "name": "문암초곡해수욕장",
+    "image": "assets/images/23.jpg",
+    "description": "",
+    "location": "삼척시",
+    "tags": ["해수욕장"],
+    "explain":""
   }
 ]

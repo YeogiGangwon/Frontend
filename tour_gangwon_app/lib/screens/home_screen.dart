@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:tour_gangwon_app/screens/search_result_list_screen.dart';
 import 'package:tour_gangwon_app/screens/date_selection_screen.dart';
+import 'package:tour_gangwon_app/screens/recommendation_detail_screen.dart';
 import 'package:tour_gangwon_app/widgets/menu_bar.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -24,19 +26,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Map<String, String>> _categoryItems = [
     {
-      'title': '무계획 여행 떠나기',
-      'subtitle': '여행지를 랜덤으로 추천',
-      'image': 'assets/images/plane.png',
+      'title': '랜덤 추천',
+      'subtitle': '무계획으로 떠나는 여행',
+      'image': 'assets/images/random.png',
     },
     {
-      'title': '혼잡도 여행지 추천',
-      'subtitle': '혼잡도에 맞춰 여행지를 추천',
-      'image': 'assets/images/plane.png',
+      'title': '여행지 추천',
+      'subtitle': '최적의 여행지 추천',
+      'image': 'assets/images/travel.png',
     },
     {
-      'title': '풀 코스 여행 계획',
-      'subtitle': '코스를 짜주는 서비스',
-      'image': 'assets/images/plane.png',
+      'title': '코스 추천',
+      'subtitle': '완벽한 계획, 완벽한 여행',
+      'image': 'assets/images/route.png',
     },
   ];
 
@@ -280,80 +282,154 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             const SizedBox(height: 16),
-            // 나머지 컨텐츠 (카테고리, Today Info 등)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: _categoryItems.asMap().entries.map((entry) {
-                final index = entry.key;
-                final item = entry.value;
-                final categoryCard = Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            // 추천 카테고리 섹션 (하나의 컨테이너에 세 개 버튼)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: _categoryItems.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+                  final categoryButton = Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        height: 120,
+                        width: 60,
+                        height: 60,
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
+                          color: const Color(0xFFF3F5F6),
                           borderRadius: BorderRadius.circular(16),
-                          image: DecorationImage(
-                            image: item['image']!.startsWith('assets')
-                                ? AssetImage(item['image']!) as ImageProvider
-                                : NetworkImage(item['image']!),
-                            fit: BoxFit.cover,
-                          ),
+                        ),
+                        child: Image.asset(
+                          item['image']!,
+                          fit: BoxFit.contain,
+                          width: 48,
+                          height: 48,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Text(
                         item['title']!,
                         style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
                           color: Color(0xFF1D1B20),
                         ),
+                        textAlign: TextAlign.center,
                       ),
-                      Text(
-                        item['subtitle']!,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF49454F),
+                      const SizedBox(height: 2),
+                      SizedBox(
+                        width: 80,
+                        child: Text(
+                          item['subtitle']!,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF49454F),
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
-                  ),
-                );
+                  );
 
-                return Expanded(
-                  child: index == 1
-                      ? GestureDetector(
-                          onTap: () async {
-                            final selectedDate = await Navigator.push<DateTime>(
+                  final buttonWithDivider = <Widget>[];
+                  
+                  buttonWithDivider.add(
+                    GestureDetector(
+                      onTap: () async {
+                        if (index == 0) {
+                          // 랜덤 추천
+                          final places = await loadPlaces();
+                          if (places.isNotEmpty) {
+                            final random = Random();
+                            final randomPlace = places[random.nextInt(places.length)];
+                            Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const DateSelectionScreen(),
+                                builder: (_) => RecommendationDetailScreen(
+                                  placeId: randomPlace['id'],
+                                ),
                               ),
                             );
+                          }
+                        } else if (index == 1) {
+                          // 여행지 추천
+                          final selectedDate = await Navigator.push<DateTime>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const DateSelectionScreen(),
+                            ),
+                          );
 
-                            if (selectedDate != null) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => SearchResultListScreen(
-                                    date: selectedDate,
-                                  ),
+                          if (selectedDate != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => SearchResultListScreen(
+                                  date: selectedDate,
                                 ),
-                              );
-                            }
-                          },
-                          child: categoryCard,
-                        )
-                      : categoryCard,
-                );
-              }).toList(),
+                              ),
+                            );
+                          }
+                        } else if (index == 2) {
+                          // 코스 추천
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Row(
+                                children: [
+                                  Icon(Icons.info_outline, color: Colors.white),
+                                  SizedBox(width: 8),
+                                  Text('코스 추천 기능은 제작 예정입니다.'),
+                                ],
+                              ),
+                              backgroundColor: const Color(0xFF2250FF),
+                              duration: const Duration(seconds: 2),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      child: categoryButton,
+                    ),
+                  );
+
+                  // 마지막 버튼이 아니면 구분선 추가
+                  if (index < _categoryItems.length - 1) {
+                    buttonWithDivider.add(
+                      Container(
+                        width: 1,
+                        height: 80,
+                        color: const Color(0xFFE0E0E0),
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                      ),
+                    );
+                  }
+
+                  return buttonWithDivider;
+                }).expand((x) => x).toList(),
+              ),
             ),
             const SizedBox(height: 24),
             const Text(
-              "Today's INFO",
+              "NOW 강원",
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
