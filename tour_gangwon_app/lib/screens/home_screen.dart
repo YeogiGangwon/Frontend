@@ -7,6 +7,7 @@ import 'package:tour_gangwon_app/screens/date_selection_screen.dart';
 import 'package:tour_gangwon_app/screens/recommendation_detail_screen.dart';
 import 'package:tour_gangwon_app/widgets/menu_bar.dart';
 import 'package:tour_gangwon_app/constants/colors.dart';
+import 'package:tour_gangwon_app/services/api_client.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,11 +19,20 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentPage = 0;
   late PageController _pageController;
+  bool _isDevMode = false;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(viewportFraction: 0.85);
+    _checkDevMode();
+  }
+
+  Future<void> _checkDevMode() async {
+    final isDevToken = await ApiClient.isDevToken();
+    setState(() {
+      _isDevMode = isDevToken;
+    });
   }
 
   final List<Map<String, String>> _categoryItems = [
@@ -66,10 +76,36 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: Drawer(
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: 20),
-          children: const [
-            ListTile(leading: Icon(Icons.person), title: Text('마이페이지')),
-            ListTile(leading: Icon(Icons.star_border), title: Text('즐겨찾기')),
-            ListTile(leading: Icon(Icons.logout), title: Text('로그아웃')),
+          children: [
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('마이페이지'),
+              onTap: () {
+                Navigator.pop(context); // 드로어 닫기
+                Navigator.pushNamed(context, '/mypage');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.star_border),
+              title: const Text('즐겨찾기'),
+              onTap: () {
+                Navigator.pop(context); // 드로어 닫기
+                Navigator.pushNamed(context, '/favorites_list');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('로그아웃'),
+              onTap: () async {
+                Navigator.pop(context); // 드로어 닫기
+                await ApiClient.removeToken();
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/',
+                  (route) => false,
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -83,7 +119,36 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Image.asset('assets/images/logo.png', width: 32, height: 32),
+                Row(
+                  children: [
+                    Image.asset(
+                      'assets/images/logo.png',
+                      width: 32,
+                      height: 32,
+                    ),
+                    if (_isDevMode) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'DEV MODE',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
                 Row(
                   children: [
                     Container(
@@ -300,132 +365,143 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: _categoryItems.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final item = entry.value;
-                  final categoryButton = Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        padding: const EdgeInsets.all(12),
-                                                  decoration: BoxDecoration(
-                            color: AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        child: Image.asset(
-                          item['image']!,
-                          fit: BoxFit.contain,
-                          width: 48,
-                          height: 48,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        item['title']!,
-                                                  style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 2),
-                      SizedBox(
-                        width: 80,
-                        child: Text(
-                          item['subtitle']!,
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppColors.textSecondary,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  );
-
-                  final buttonWithDivider = <Widget>[];
-                  
-                  buttonWithDivider.add(
-                    GestureDetector(
-                      onTap: () async {
-                        if (index == 0) {
-                          // 랜덤 추천
-                          final places = await loadPlaces();
-                          if (places.isNotEmpty) {
-                            final random = Random();
-                            final randomPlace = places[random.nextInt(places.length)];
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => RecommendationDetailScreen(
-                                  placeId: randomPlace['id'],
-                                ),
-                              ),
-                            );
-                          }
-                        } else if (index == 1) {
-                          // 여행지 추천
-                          final selectedDate = await Navigator.push<DateTime>(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const DateSelectionScreen(),
+                children: _categoryItems
+                    .asMap()
+                    .entries
+                    .map((entry) {
+                      final index = entry.key;
+                      final item = entry.value;
+                      final categoryButton = Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 60,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceVariant,
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                          );
-
-                          if (selectedDate != null) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => SearchResultListScreen(
-                                  date: selectedDate,
-                                ),
-                              ),
-                            );
-                          }
-                        } else if (index == 2) {
-                          // 코스 추천
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Row(
-                                children: [
-                                  Icon(Icons.info_outline, color: Colors.white),
-                                  SizedBox(width: 8),
-                                  Text('코스 추천 기능은 제작 예정입니다.'),
-                                ],
-                              ),
-                              backgroundColor: AppColors.primary,
-                              duration: const Duration(seconds: 2),
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                            child: Image.asset(
+                              item['image']!,
+                              fit: BoxFit.contain,
+                              width: 48,
+                              height: 48,
                             ),
-                          );
-                        }
-                      },
-                      child: categoryButton,
-                    ),
-                  );
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            item['title']!,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 2),
+                          SizedBox(
+                            width: 80,
+                            child: Text(
+                              item['subtitle']!,
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textSecondary,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      );
 
-                  // 마지막 버튼이 아니면 구분선 추가
-                  if (index < _categoryItems.length - 1) {
-                    buttonWithDivider.add(
-                      Container(
-                        width: 1,
-                        height: 80,
-                        color: AppColors.divider,
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                      ),
-                    );
-                  }
+                      final buttonWithDivider = <Widget>[];
 
-                  return buttonWithDivider;
-                }).expand((x) => x).toList(),
+                      buttonWithDivider.add(
+                        GestureDetector(
+                          onTap: () async {
+                            if (index == 0) {
+                              // 랜덤 추천
+                              final places = await loadPlaces();
+                              if (places.isNotEmpty) {
+                                final random = Random();
+                                final randomPlace =
+                                    places[random.nextInt(places.length)];
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => RecommendationDetailScreen(
+                                      placeId: randomPlace['id'],
+                                    ),
+                                  ),
+                                );
+                              }
+                            } else if (index == 1) {
+                              // 여행지 추천
+                              final selectedDate =
+                                  await Navigator.push<DateTime>(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const DateSelectionScreen(),
+                                    ),
+                                  );
+
+                              if (selectedDate != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => SearchResultListScreen(
+                                      date: selectedDate,
+                                    ),
+                                  ),
+                                );
+                              }
+                            } else if (index == 2) {
+                              // 코스 추천
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Row(
+                                    children: [
+                                      Icon(
+                                        Icons.info_outline,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text('코스 추천 기능은 제작 예정입니다.'),
+                                    ],
+                                  ),
+                                  backgroundColor: AppColors.primary,
+                                  duration: const Duration(seconds: 2),
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          child: categoryButton,
+                        ),
+                      );
+
+                      // 마지막 버튼이 아니면 구분선 추가
+                      if (index < _categoryItems.length - 1) {
+                        buttonWithDivider.add(
+                          Container(
+                            width: 1,
+                            height: 80,
+                            color: AppColors.divider,
+                            margin: const EdgeInsets.symmetric(horizontal: 16),
+                          ),
+                        );
+                      }
+
+                      return buttonWithDivider;
+                    })
+                    .expand((x) => x)
+                    .toList(),
               ),
             ),
             const SizedBox(height: 24),

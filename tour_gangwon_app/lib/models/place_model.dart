@@ -28,4 +28,16 @@ class Place {
       explain: json['explain'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'image': image,
+      'description': description,
+      'location': location,
+      'tags': tags,
+      'explain': explain,
+    };
+  }
 }

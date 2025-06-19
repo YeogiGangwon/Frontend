@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../services/api_client.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,8 +12,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _idController = TextEditingController();
   final _pwController = TextEditingController();
-  final _dio = Dio();
-  final _storage = const FlutterSecureStorage();
   bool _isLoading = false;
 
   @override
@@ -31,44 +28,23 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       try {
-        final response = await _dio.post(
-          'http://10.0.2.2:8080/api/users/login', // API 엔드포인트
-          data: {
-            'email': _idController.text, // ID를 email로 전송
-            'password': _pwController.text,
-          },
+        final result = await ApiClient.login(
+          email: _idController.text,
+          password: _pwController.text,
         );
 
-        if (response.statusCode == 200) {
-          // 응답에서 토큰을 추출
-          final String token = response.data['token'];
-          // 기기에 안전하게 토큰 저장
-          await _storage.write(key: 'jwt_token', value: token);
-          
+        if (result['success']) {
           print('로그인 성공, 토큰 저장 완료!');
           // 로그인 성공 후 홈 화면으로 이동
           if (mounted) {
             Navigator.pushReplacementNamed(context, '/home');
           }
-        }
-      } on DioException catch (e) {
-        if (mounted) {
-          // API 명세서에 따른 에러 처리
-          if (e.response?.statusCode == 401) {
-            // 401 에러 메시지 표시
+        } else {
+          // 에러 처리
+          if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
-                  e.response?.data['message'] ?? '아이디 또는 비밀번호가 틀립니다.',
-                ),
-                backgroundColor: Colors.red,
-              ),
-            );
-          } else {
-            // 기타 서버 에러
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('서버에 오류가 발생했습니다.'),
+                content: Text(result['message'] ?? '로그인에 실패했습니다.'),
                 backgroundColor: Colors.red,
               ),
             );
@@ -106,7 +82,12 @@ class _LoginScreenState extends State<LoginScreen> {
             Container(
               width: double.infinity,
               height: 884,
-              padding: const EdgeInsets.only(top: 116, left: 72, right: 72, bottom: 100),
+              padding: const EdgeInsets.only(
+                top: 116,
+                left: 72,
+                right: 72,
+                bottom: 100,
+              ),
               decoration: const BoxDecoration(color: Color(0xFFF3F5F6)),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -139,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const Align(
                           alignment: Alignment.center,
                           child: Text(
-                            'ID',
+                            'Email',
                             style: TextStyle(
                               fontSize: 16,
                               color: Color(0xFF1E1E1E),
@@ -151,17 +132,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 8),
 
-                        // ID 입력창
+                        // Email 입력창
                         TextFormField(
                           controller: _idController,
+                          keyboardType: TextInputType.emailAddress,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return '아이디를 입력해주세요';
+                              return '이메일을 입력해주세요';
+                            }
+                            if (!RegExp(
+                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                            ).hasMatch(value)) {
+                              return '올바른 이메일 형식을 입력해주세요';
                             }
                             return null;
                           },
                           decoration: InputDecoration(
-                            hintText: '아이디를 입력하세요',
+                            hintText: '이메일을 입력하세요',
                             hintStyle: const TextStyle(
                               color: Color(0xFFB3B3B3),
                               fontSize: 16,
@@ -171,22 +158,37 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             filled: true,
                             fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFFD9D9D9), width: 1),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFD9D9D9),
+                                width: 1,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFF002C50), width: 1),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF002C50),
+                                width: 1,
+                              ),
                             ),
                             errorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Colors.red, width: 1),
+                              borderSide: const BorderSide(
+                                color: Colors.red,
+                                width: 1,
+                              ),
                             ),
                             focusedErrorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Colors.red, width: 1),
+                              borderSide: const BorderSide(
+                                color: Colors.red,
+                                width: 1,
+                              ),
                             ),
                           ),
                         ),
@@ -229,22 +231,37 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             filled: true,
                             fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFFD9D9D9), width: 1),
+                              borderSide: const BorderSide(
+                                color: Color(0xFFD9D9D9),
+                                width: 1,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Color(0xFF002C50), width: 1),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF002C50),
+                                width: 1,
+                              ),
                             ),
                             errorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Colors.red, width: 1),
+                              borderSide: const BorderSide(
+                                color: Colors.red,
+                                width: 1,
+                              ),
                             ),
                             focusedErrorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Colors.red, width: 1),
+                              borderSide: const BorderSide(
+                                color: Colors.red,
+                                width: 1,
+                              ),
                             ),
                           ),
                         ),
@@ -290,7 +307,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             TextButton(
                               onPressed: () {
-                                Navigator.pushNamed(context, '/signup'); // 회원가입 화면 이동
+                                Navigator.pushNamed(
+                                  context,
+                                  '/signup',
+                                ); // 회원가입 화면 이동
                               },
                               child: const Text(
                                 '회원가입',
