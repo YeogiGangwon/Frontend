@@ -4,6 +4,7 @@ class AppConfig {
   static const bool isDevelopmentMode = false;
 
   // API 기본 URL - 백엔드 서버 포트(8080)로 설정
+  // Docker Compose 환경에서는 localhost:8080으로 접근
   static String get apiBaseUrl => 'http://localhost:8080/api';
 
   // 개발용 자동 로그인 토큰
@@ -18,8 +19,8 @@ class AppConfig {
   // 로그 레벨 (개발 모드에서는 상세 로그, 프로덕션에서는 최소 로그)
   static String get logLevel => isDevelopmentMode ? 'debug' : 'error';
 
-  // API 타임아웃 설정 (초)
-  static const int apiTimeoutSeconds = 30;
+  // API 타임아웃 설정 (초) - Docker 환경을 고려하여 60초로 증가
+  static const int apiTimeoutSeconds = 60;
 
   // 재시도 횟수
   static const int maxRetries = 3;

@@ -5,9 +5,9 @@ part 'favorite_model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class FavoriteItem {
-  final int id;
+  final String id;
   @JsonKey(name: 'user_id')
-  final int userId;
+  final String userId;
   @JsonKey(name: 'place_id')
   final Place place; // 백엔드에서 place_id가 Place 객체로 populate됨
   @JsonKey(name: 'created_at')
@@ -30,7 +30,7 @@ class FavoriteItem {
 @JsonSerializable()
 class FavoriteRequest {
   @JsonKey(name: 'place_id')
-  final int placeId;
+  final String placeId;
 
   FavoriteRequest({required this.placeId});
 

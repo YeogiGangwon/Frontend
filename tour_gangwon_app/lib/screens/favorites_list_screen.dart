@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tour_gangwon_app/widgets/common_list_view.dart';
-import 'package:tour_gangwon_app/widgets/menu_bar.dart';
+
 import 'package:tour_gangwon_app/services/favorite_service.dart';
 import 'package:tour_gangwon_app/models/favorite_model.dart';
 import 'package:tour_gangwon_app/services/api_client.dart';
@@ -54,7 +54,7 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
     }
   }
 
-  Future<void> _removeFavorite(int placeId) async {
+  Future<void> _removeFavorite(String placeId) async {
     try {
       await _favoriteService.removeFavorite(placeId);
       ScaffoldMessenger.of(
@@ -83,7 +83,6 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
         ],
       ),
       body: Padding(padding: const EdgeInsets.all(16.0), child: _buildBody()),
-      bottomNavigationBar: const MessageWthLink(),
     );
   }
 
@@ -220,7 +219,7 @@ class _FavoritesListScreenState extends State<FavoritesListScreen> {
     );
   }
 
-  void _showRemoveConfirmDialog(int placeId, String placeName) {
+  void _showRemoveConfirmDialog(String placeId, String placeName) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

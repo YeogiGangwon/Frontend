@@ -29,7 +29,7 @@ class FavoriteService {
   }
 
   /// 즐겨찾기 추가
-  Future<FavoriteItem> addFavorite(int placeId) async {
+  Future<FavoriteItem> addFavorite(String placeId) async {
     try {
       final request = FavoriteRequest(placeId: placeId);
       final response = await _dio.post('/favorites', data: request.toJson());
@@ -54,7 +54,7 @@ class FavoriteService {
   }
 
   /// 즐겨찾기 삭제
-  Future<void> removeFavorite(int placeId) async {
+  Future<void> removeFavorite(String placeId) async {
     try {
       final response = await _dio.delete('/favorites/place/$placeId');
 
@@ -76,9 +76,13 @@ class FavoriteService {
   }
 
   /// 특정 장소의 즐겨찾기 상태 확인
-  Future<bool> getFavoriteStatus(int placeId) async {
+  Future<bool> getFavoriteStatus(String placeId) async {
     try {
+      print('즐겨찾기 상태 확인 요청: placeId=$placeId');
       final response = await _dio.get('/favorites/status/$placeId');
+
+      print('즐겨찾기 상태 확인 응답: ${response.statusCode}');
+      print('응답 데이터: ${response.data}');
 
       if (response.statusCode == 200) {
         final status = FavoriteStatus.fromJson(response.data);
@@ -91,8 +95,21 @@ class FavoriteService {
     } catch (e) {
       print('Error getting favorite status: $e');
       if (e is DioException) {
+        print('DioException 상세:');
+        print('  - statusCode: ${e.response?.statusCode}');
+        print('  - data: ${e.response?.data}');
+        print('  - message: ${e.message}');
+        print('  - type: ${e.type}');
+
         if (e.response?.statusCode == 401) {
           throw Exception('인증이 필요합니다. 다시 로그인해주세요.');
+        } else if (e.response?.statusCode == 500) {
+          final errorData = e.response?.data;
+          if (errorData is Map && errorData['error'] != null) {
+            throw Exception('서버 오류: ${errorData['error']}');
+          } else {
+            throw Exception('서버에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+          }
         }
         throw Exception('즐겨찾기 상태 확인에 실패했습니다: ${e.message}');
       }
@@ -101,7 +118,7 @@ class FavoriteService {
   }
 
   /// 즐겨찾기 토글 (추가/삭제)
-  Future<bool> toggleFavorite(int placeId) async {
+  Future<bool> toggleFavorite(String placeId) async {
     try {
       final isCurrentlyFavorite = await getFavoriteStatus(placeId);
 

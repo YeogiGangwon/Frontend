@@ -3,7 +3,7 @@ import '../services/favorite_service.dart';
 import '../services/api_client.dart';
 
 class FavoriteButton extends StatefulWidget {
-  final int placeId;
+  final String placeId;
   final VoidCallback? onFavoriteChanged;
   final double size;
   final Color? favoriteColor;

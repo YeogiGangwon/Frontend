@@ -8,6 +8,7 @@ import 'screens/date_selection_screen.dart';
 import 'screens/search_result_list_screen.dart';
 import 'screens/recommendation_detail_screen.dart';
 import 'screens/favorites_list_screen.dart';
+import 'screens/browse_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Recommendation App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.red,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       initialRoute: '/',
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
         '/mypage': (context) => const MyPageScreen(),
         '/date_selection': (context) => const DateSelectionScreen(),
         '/favorites_list': (context) => const FavoritesListScreen(),
+        '/browse': (context) => const BrowseScreen(),
 
         // 날짜 기반 추천 리스트로 이동
         '/search_result_list': (context) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tour_gangwon_app/widgets/menu_bar.dart';
+
 import 'package:tour_gangwon_app/services/api_client.dart';
+import 'package:tour_gangwon_app/constants/colors.dart';
 
 class MyPageScreen extends StatefulWidget {
   const MyPageScreen({super.key});
@@ -37,7 +38,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('마이페이지'),
-        backgroundColor: const Color(0xFF002C50),
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
       body: Padding(
@@ -105,7 +106,6 @@ class _MyPageScreenState extends State<MyPageScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: const MessageWthLink(),
     );
   }
 }

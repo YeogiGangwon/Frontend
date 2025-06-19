@@ -2,9 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:tour_gangwon_app/widgets/menu_bar.dart';
-import '../models/place_model.dart';
-import '../services/place_service.dart';
+
+import '../services/api_client.dart';
+import '../screens/recommendation_beach_detail_screen.dart';
+import '../constants/colors.dart';
 
 class SearchResultListScreen extends StatefulWidget {
   final DateTime date;
@@ -16,27 +17,69 @@ class SearchResultListScreen extends StatefulWidget {
 }
 
 class _SearchResultListScreenState extends State<SearchResultListScreen> {
-  List<Place> places = [];
+  List<Map<String, dynamic>> recommendations = [];
   bool isLoading = true;
+  String errorMessage = '';
 
   @override
   void initState() {
     super.initState();
-    _loadPlaces();
+    _loadRecommendations();
   }
 
-  Future<void> _loadPlaces() async {
+  Future<void> _loadRecommendations() async {
     try {
-      final loadedPlaces = await PlaceService.loadPlaces();
-      setState(() {
-        places = loadedPlaces;
-        isLoading = false;
-      });
+      final result = await ApiClient.getRecommendedBeaches();
+
+      if (result['success']) {
+        if (mounted) {
+          setState(() {
+            recommendations = List<Map<String, dynamic>>.from(result['data']);
+            isLoading = false;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            errorMessage = result['message'] ?? '추천 데이터를 불러올 수 없습니다.';
+            isLoading = false;
+          });
+        }
+      }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      print('Error loading places: $e');
+      if (mounted) {
+        setState(() {
+          errorMessage = '네트워크 오류가 발생했습니다.';
+          isLoading = false;
+        });
+      }
+      print('Error loading recommendations: $e');
+    }
+  }
+
+  String _getCongestionLevelText(String level) {
+    switch (level) {
+      case 'low':
+        return '여유';
+      case 'medium':
+        return '보통';
+      case 'high':
+        return '혼잡';
+      default:
+        return '정보없음';
+    }
+  }
+
+  Color _getCongestionColor(String level) {
+    switch (level) {
+      case 'low':
+        return Colors.green;
+      case 'medium':
+        return Colors.orange;
+      case 'high':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 
@@ -55,58 +98,91 @@ class _SearchResultListScreenState extends State<SearchResultListScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Image.asset(
-                  'assets/images/logo.png',
-                  width: 48,
-                  height: 48,
-                  fit: BoxFit.contain,
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios),
+                  onPressed: () => Navigator.pop(context),
                 ),
-                Row(
-                  children: [
-                    IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
-                    IconButton(
-                      icon: const Icon(Icons.notifications),
-                      onPressed: () {},
-                    ),
-                  ],
+                const Text(
+                  '여기 가보시는건 어때요?',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '$formattedDate 추천 여행지',
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF1D1B20),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
           Expanded(
             child: isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('추천 정보를 불러오고 있습니다...'),
+                      ],
+                    ),
+                  )
+                : errorMessage.isNotEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.red,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          errorMessage,
+                          style: const TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (mounted) {
+                              setState(() {
+                                isLoading = true;
+                                errorMessage = '';
+                              });
+                              _loadRecommendations();
+                            }
+                          },
+                          child: const Text('다시 시도'),
+                        ),
+                      ],
+                    ),
+                  )
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: places.length,
+                    itemCount: recommendations.length,
                     itemBuilder: (context, index) {
-                      final place = places[index];
+                      final beach = recommendations[index];
+                      final congestionLevel = _getCongestionLevelText(
+                        beach['congestion']['level'],
+                      );
+                      final congestionColor = _getCongestionColor(
+                        beach['congestion']['level'],
+                      );
+
                       return GestureDetector(
                         onTap: () {
-                          Navigator.pushNamed(
+                          Navigator.push(
                             context,
-                            '/recommendation_detail',
-                            arguments: place.id,
+                            MaterialPageRoute(
+                              builder: (_) => RecommendationBeachDetailScreen(
+                                beachData: beach,
+                              ),
+                            ),
                           );
                         },
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 16),
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
@@ -118,40 +194,180 @@ class _SearchResultListScreenState extends State<SearchResultListScreen> {
                               ),
                             ],
                           ),
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.asset(
-                                  place.image,
-                                  width: 56,
-                                  height: 56,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      place.name,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        color: Color(0xFF1D1B20),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary,
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '${index + 1}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
-                                    Text(
-                                      '${place.location} · ${place.tags.join(', ')}',
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          beach['name'],
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF1D1B20),
+                                          ),
+                                        ),
+                                        if (beach['description'] != null)
+                                          Text(
+                                            beach['description'],
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Color(0xFF49454F),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      '${beach['totalScore']}점',
                                       style: const TextStyle(
+                                        color: Colors.white,
                                         fontSize: 14,
-                                        color: Color(0xFF49454F),
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                              const Icon(Icons.arrow_forward_ios, size: 16),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  // 날씨 정보
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF8F9FA),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Row(
+                                            children: [
+                                              Icon(
+                                                Icons.wb_sunny,
+                                                size: 16,
+                                                color: AppColors.primary,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                '날씨',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Color(0xFF49454F),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            '${beach['weather']['sky']} ${beach['weather']['temp']}',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF1D1B20),
+                                            ),
+                                          ),
+                                          Text(
+                                            '점수: ${beach['weather']['score']}점',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Color(0xFF49454F),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  // 혼잡도 정보
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF8F9FA),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Row(
+                                            children: [
+                                              Icon(
+                                                Icons.people,
+                                                size: 16,
+                                                color: AppColors.primary,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                '혼잡도',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Color(0xFF49454F),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            congestionLevel,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: congestionColor,
+                                            ),
+                                          ),
+                                          Text(
+                                            '점수: ${beach['congestion']['score']}점',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Color(0xFF49454F),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
@@ -161,7 +377,6 @@ class _SearchResultListScreenState extends State<SearchResultListScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: const MessageWthLink(),
     );
   }
 }

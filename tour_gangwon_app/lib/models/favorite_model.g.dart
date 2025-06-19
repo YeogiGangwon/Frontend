@@ -7,8 +7,8 @@ part of 'favorite_model.dart';
 // **************************************************************************
 
 FavoriteItem _$FavoriteItemFromJson(Map<String, dynamic> json) => FavoriteItem(
-  id: (json['id'] as num).toInt(),
-  userId: (json['user_id'] as num).toInt(),
+  id: json['id'] as String,
+  userId: json['user_id'] as String,
   place: Place.fromJson(json['place_id'] as Map<String, dynamic>),
   createdAt: DateTime.parse(json['created_at'] as String),
 );
@@ -22,7 +22,7 @@ Map<String, dynamic> _$FavoriteItemToJson(FavoriteItem instance) =>
     };
 
 FavoriteRequest _$FavoriteRequestFromJson(Map<String, dynamic> json) =>
-    FavoriteRequest(placeId: (json['place_id'] as num).toInt());
+    FavoriteRequest(placeId: json['place_id'] as String);
 
 Map<String, dynamic> _$FavoriteRequestToJson(FavoriteRequest instance) =>
     <String, dynamic>{'place_id': instance.placeId};

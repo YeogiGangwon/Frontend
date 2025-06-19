@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../constants/colors.dart';
 
 class DateSelectionScreen extends StatefulWidget {
   const DateSelectionScreen({super.key});
@@ -48,7 +49,7 @@ class _DateSelectionScreenState extends State<DateSelectionScreen> {
     final isDark = true;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF181A20),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Stack(
           children: [
@@ -64,7 +65,7 @@ class _DateSelectionScreenState extends State<DateSelectionScreen> {
                     child: Text(
                       '혼잡도, 거리, 날씨를 기반으로\n최적의 여행지를 확인할 수 있어요',
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: AppColors.textPrimary,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                         height: 1.4,
@@ -91,8 +92,16 @@ class _DateSelectionScreenState extends State<DateSelectionScreen> {
                       horizontal: 20,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF23242A),
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.shadow,
+                          spreadRadius: 1,
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -103,14 +112,14 @@ class _DateSelectionScreenState extends State<DateSelectionScreen> {
                           children: [
                             const Icon(
                               Icons.calendar_today,
-                              color: Color(0xFF4A90E2),
+                              color: AppColors.primary,
                               size: 28,
                             ),
                             const SizedBox(width: 10),
                             Text(
                               formattedDate,
                               style: const TextStyle(
-                                color: Colors.white,
+                                color: AppColors.textPrimary,
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -124,9 +133,9 @@ class _DateSelectionScreenState extends State<DateSelectionScreen> {
                             onPressed: () => _selectDate(context),
                             style: OutlinedButton.styleFrom(
                               backgroundColor: Colors.transparent,
-                              foregroundColor: const Color(0xFF4A90E2),
+                              foregroundColor: AppColors.primary,
                               side: const BorderSide(
-                                color: Color(0xFF4A90E2),
+                                color: AppColors.primary,
                                 width: 1.5,
                               ),
                               shape: RoundedRectangleBorder(
@@ -142,7 +151,7 @@ class _DateSelectionScreenState extends State<DateSelectionScreen> {
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF4A90E2),
+                                color: AppColors.primary,
                               ),
                             ),
                           ),
@@ -159,25 +168,19 @@ class _DateSelectionScreenState extends State<DateSelectionScreen> {
                     children: _categories.map((cat) {
                       final bool selected = _selectedCategories.contains(cat);
                       return ChoiceChip(
-                        label: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              cat,
-                              style: TextStyle(
-                                color: selected ? Colors.white : Colors.white,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            if (selected) ...[
-                              const SizedBox(width: 4),
-                              Icon(Icons.check, color: Colors.white, size: 18),
-                            ],
-                          ],
+                        label: Text(
+                          cat,
+                          style: TextStyle(
+                            color: selected
+                                ? Colors.white
+                                : AppColors.textPrimary,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         selected: selected,
-                        selectedColor: const Color(0xFF4A90E2),
-                        backgroundColor: const Color(0xFF23242A),
+                        selectedColor: AppColors.primary,
+                        backgroundColor: AppColors.surface,
+                        checkmarkColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -209,7 +212,7 @@ class _DateSelectionScreenState extends State<DateSelectionScreen> {
               child: IconButton(
                 icon: const Icon(
                   Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white,
+                  color: AppColors.textPrimary,
                   size: 26,
                 ),
                 onPressed: () => Navigator.of(context).maybePop(),
@@ -227,14 +230,55 @@ class _DateSelectionScreenState extends State<DateSelectionScreen> {
                   height: 56,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/search_result_list',
-                        arguments: showDate,
+                      // 오늘 날짜인지 확인
+                      final today = DateTime.now();
+                      final selectedDate = _selectedDate ?? today;
+
+                      // 날짜만 비교 (시간 제외)
+                      final todayDate = DateTime(
+                        today.year,
+                        today.month,
+                        today.day,
                       );
+                      final chosenDate = DateTime(
+                        selectedDate.year,
+                        selectedDate.month,
+                        selectedDate.day,
+                      );
+
+                      if (chosenDate.isAtSameMomentAs(todayDate)) {
+                        // 오늘 날짜인 경우 - 추천 화면으로 이동
+                        Navigator.pushNamed(
+                          context,
+                          '/search_result_list',
+                          arguments: selectedDate,
+                        );
+                      } else {
+                        // 다른 날짜인 경우 - 알림 표시
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Row(
+                              children: [
+                                Icon(Icons.info_outline, color: Colors.white),
+                                SizedBox(width: 8),
+                                Text(
+                                  '현재는 오늘 날짜의 추천만 지원됩니다.',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                            backgroundColor: AppColors.primary,
+                            duration: const Duration(seconds: 3),
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4A90E2),
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),

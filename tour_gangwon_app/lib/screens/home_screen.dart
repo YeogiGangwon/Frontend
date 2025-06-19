@@ -8,8 +8,9 @@ import 'package:tour_gangwon_app/screens/recommendation_detail_screen.dart';
 import 'package:tour_gangwon_app/screens/beach_list_screen.dart';
 import 'package:tour_gangwon_app/screens/beach_detail_screen.dart';
 import 'package:tour_gangwon_app/services/beach_service.dart';
-import 'package:tour_gangwon_app/widgets/menu_bar.dart';
+import 'package:tour_gangwon_app/widgets/news_card_list.dart';
 import 'package:tour_gangwon_app/constants/colors.dart';
+import 'package:tour_gangwon_app/models/festival_model.dart';
 import 'package:tour_gangwon_app/services/api_client.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -41,69 +42,192 @@ class _HomeScreenState extends State<HomeScreen> {
       'image': 'assets/images/travel.png',
     },
     {
-      'title': '해수욕장',
-      'subtitle': '강원도 해수욕장 정보',
-      'image': 'assets/images/beach1.png',
-    },
-    {
       'title': '코스 추천',
       'subtitle': '완벽한 계획, 완벽한 여행',
       'image': 'assets/images/route.png',
     },
   ];
 
-  final List<Map<String, String>> _todayInfoItems = List.generate(
-    5,
-    (index) => {
-      'title': 'List item',
-      'desc': 'Supporting line text lorem ipsum dolor sit amet, consectetur.',
-      'image': 'https://placehold.co/56x56',
-    },
-  );
+  final List<FestivalCard> _festivalList = [
+    FestivalCard(
+      name: '무릉별유천지 라벤더 축제',
+      period: '2025.6.14 - 6.22',
+      imageUrl: 'assets/images/festival_lavender.png',
+      location: '동해시 무릉별유천지 일원',
+    ),
+    FestivalCard(
+      name: '횡성 썸머나잇페스타',
+      period: '2025.6.20 - 6.21',
+      imageUrl: 'assets/images/summer.jpg',
+      location: '횡성군 섬강 일원',
+    ),
+    FestivalCard(
+      name: '산맥 페스티벌',
+      period: '2025.6.13 - 6.14',
+      imageUrl: 'assets/images/beer.png',
+      location: '정선군 두위봉 일원',
+    ),
+    FestivalCard(
+      name: '실향민문화축제',
+      period: '2025.6.13 - 6.15',
+      imageUrl: 'assets/images/culture.png',
+      location: '속초 엑스포 잔디광장 일원',
+    ),
+  ];
 
   Future<List<Map<String, dynamic>>> loadPlaces() async {
-    final String jsonStr = await rootBundle.loadString(
-      'assets/data/places.json',
+    try {
+      final String jsonStr = await rootBundle.loadString(
+        'assets/data/places.json',
+      );
+      final List<dynamic> jsonList = json.decode(jsonStr);
+      return jsonList.cast<Map<String, dynamic>>();
+    } catch (e) {
+      print('Error loading places.json: $e');
+      // Fallback 데이터 반환
+      return [
+        {
+          'id': '1',
+          'name': '강릉 경포해수욕장',
+          'description': '넓은 백사장과 다양한 편의시설이 잘 갖춰진 대표적인 강릉 해수욕장',
+        },
+        {
+          'id': '2',
+          'name': '속초 해수욕장',
+          'description': '설악산과 바다를 동시에 즐길 수 있는 아름다운 해수욕장',
+        },
+        {
+          'id': '3',
+          'name': '양양 낙산해수욕장',
+          'description': '낙산사와 인접한 고즈넉한 분위기의 해수욕장',
+        },
+      ];
+    }
+  }
+
+  IconData _getCategoryIcon(int index) {
+    switch (index) {
+      case 0: // 랜덤 추천
+        return Icons.shuffle;
+      case 1: // 여행지 추천
+        return Icons.travel_explore;
+      case 2: // 코스 추천
+        return Icons.route;
+      default:
+        return Icons.place;
+    }
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: AppColors.primary, size: 24),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: AppColors.textPrimary,
+        ),
+      ),
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
-    final List<dynamic> jsonList = json.decode(jsonStr);
-    return jsonList.cast<Map<String, dynamic>>();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: Drawer(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
           children: [
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('마이페이지'),
-              onTap: () {
-                Navigator.pop(context); // 드로어 닫기
-                Navigator.pushNamed(context, '/mypage');
-              },
+            // 상단 헤더
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(24, 60, 24, 20),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '여기강원',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    '강원도 여행의 모든 것',
+                    style: TextStyle(fontSize: 16, color: Colors.white70),
+                  ),
+                ],
+              ),
             ),
-            ListTile(
-              leading: const Icon(Icons.star_border),
-              title: const Text('즐겨찾기'),
-              onTap: () {
-                Navigator.pop(context); // 드로어 닫기
-                Navigator.pushNamed(context, '/favorites_list');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('로그아웃'),
-              onTap: () async {
-                Navigator.pop(context); // 드로어 닫기
-                await ApiClient.removeToken();
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/',
-                  (route) => false,
-                );
-              },
+            // 메뉴 항목들
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                children: [
+                  _buildDrawerItem(
+                    icon: Icons.home,
+                    title: '홈',
+                    onTap: () {
+                      Navigator.pop(context);
+                      // 이미 홈 화면이므로 아무것도 하지 않음
+                    },
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.search,
+                    title: '찾아보기',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/browse');
+                    },
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.favorite,
+                    title: '즐겨찾기',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/favorites_list');
+                    },
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.person,
+                    title: '마이페이지',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, '/mypage');
+                    },
+                  ),
+                  const Divider(height: 40),
+                  _buildDrawerItem(
+                    icon: Icons.logout,
+                    title: '로그아웃',
+                    onTap: () async {
+                      Navigator.pop(context);
+                      await ApiClient.removeToken();
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        '/',
+                        (route) => false,
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -118,50 +242,63 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Image.asset(
-                      'assets/images/logo.png',
-                      width: 32,
-                      height: 32,
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Container(
+                // 좌측 메뉴 버튼
+                Builder(
+                  builder: (context) => GestureDetector(
+                    onTap: () {
+                      Scaffold.of(context).openDrawer();
+                    },
+                    child: Container(
                       width: 48,
                       height: 48,
-                      margin: const EdgeInsets.only(right: 8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(100),
-                        color: Colors.grey[300],
+                        color: AppColors.surface,
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(10),
-                        child: Image.asset('assets/images/notifi.png'),
-                      ),
-                    ),
-                    Builder(
-                      builder: (context) => GestureDetector(
-                        onTap: () {
-                          Scaffold.of(context).openDrawer();
-                        },
-                        child: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            color: Colors.grey[300],
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Image.asset('assets/images/menu.png'),
-                          ),
+                        child: Image.asset(
+                          'assets/images/menu.png',
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.menu,
+                              color: AppColors.textSecondary,
+                            );
+                          },
                         ),
                       ),
                     ),
-                  ],
+                  ),
+                ),
+                // 중앙 타이틀
+                const Text(
+                  '여기강원',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                // 우측 알림 버튼
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: AppColors.surface,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Image.asset(
+                      'assets/images/notifi.png',
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(
+                          Icons.notifications,
+                          color: AppColors.textSecondary,
+                        );
+                      },
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -213,6 +350,32 @@ class _HomeScreenState extends State<HomeScreen> {
                                     width: double.infinity,
                                     height: 260,
                                     fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        width: double.infinity,
+                                        height: 260,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [
+                                              AppColors.primaryLight,
+                                              AppColors.primary,
+                                            ],
+                                          ),
+                                        ),
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.landscape,
+                                            size: 64,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                                 Positioned(
@@ -365,6 +528,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               fit: BoxFit.contain,
                               width: 48,
                               height: 48,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(
+                                  _getCategoryIcon(index),
+                                  size: 32,
+                                  color: AppColors.primary,
+                                );
+                              },
+                              color: AppColors.primary, // 이미지도 붉은색으로 tint
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -461,35 +632,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                               }
                             } else if (index == 1) {
-                              // 여행지 추천
-                              final selectedDate =
-                                  await Navigator.push<DateTime>(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const DateSelectionScreen(),
-                                    ),
-                                  );
-
-                              if (selectedDate != null) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => SearchResultListScreen(
-                                      date: selectedDate,
-                                    ),
-                                  ),
-                                );
-                              }
-                            } else if (index == 2) {
-                              // 해수욕장
+                              // 여행지 추천 - 날짜 선택 화면으로 이동
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => const BeachListScreen(),
+                                  builder: (_) => const DateSelectionScreen(),
                                 ),
                               );
-                            } else if (index == 3) {
+                            } else if (index == 2) {
                               // 코스 추천
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -541,61 +691,10 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            Column(
-              children: _todayInfoItems.map((item) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          image: DecorationImage(
-                            image: NetworkImage(item['image']!),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              item['title']!,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            Text(
-                              item['desc']!,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
+            NewsCardList(festivalList: _festivalList),
           ],
         ),
       ),
-      bottomNavigationBar: const MessageWthLink(),
     );
   }
 

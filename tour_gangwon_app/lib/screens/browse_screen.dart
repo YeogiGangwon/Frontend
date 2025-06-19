@@ -4,14 +4,14 @@ import '../services/beach_service.dart';
 import '../constants/colors.dart';
 import 'beach_detail_screen.dart';
 
-class BeachListScreen extends StatefulWidget {
-  const BeachListScreen({super.key});
+class BrowseScreen extends StatefulWidget {
+  const BrowseScreen({super.key});
 
   @override
-  State<BeachListScreen> createState() => _BeachListScreenState();
+  State<BrowseScreen> createState() => _BrowseScreenState();
 }
 
-class _BeachListScreenState extends State<BeachListScreen> {
+class _BrowseScreenState extends State<BrowseScreen> {
   List<Beach> beaches = [];
   List<Beach> filteredBeaches = [];
   bool isLoading = true;
@@ -51,7 +51,7 @@ class _BeachListScreenState extends State<BeachListScreen> {
     if (!enabled) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('$categoryName은(는) 준비 중입니다. 현재는 해수욕장만 이용 가능합니다.'),
+          content: Text('준비 중입니다. 현재는 해수욕장만 이용 가능합니다'),
           backgroundColor: Colors.orange,
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
@@ -84,6 +84,10 @@ class _BeachListScreenState extends State<BeachListScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

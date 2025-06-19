@@ -1,5 +1,5 @@
 class Place {
-  final int id;
+  final String id;
   final String name;
   final String image;
   final String description;
@@ -19,7 +19,7 @@ class Place {
 
   factory Place.fromJson(Map<String, dynamic> json) {
     return Place(
-      id: json['id'],
+      id: json['id'].toString(),
       name: json['name'],
       image: json['image'],
       description: json['description'],

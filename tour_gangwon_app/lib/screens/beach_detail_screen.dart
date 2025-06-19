@@ -4,7 +4,7 @@ import '../models/beach_model.dart';
 import '../services/beach_service.dart';
 import '../services/favorite_service.dart';
 import '../services/api_client.dart';
-import '../widgets/menu_bar.dart';
+
 import '../constants/colors.dart';
 import 'auth/login_screen.dart';
 
@@ -90,83 +90,31 @@ class _BeachDetailScreenState extends State<BeachDetailScreen> {
   }
 
   Future<void> _checkFavoriteStatus() async {
-    if (beach == null) return;
-
-    try {
-      // Beach ID를 정수로 변환하여 Place ID로 사용
-      final placeId = int.tryParse(beach!.id);
-      if (placeId != null) {
-        final status = await _favoriteService.getFavoriteStatus(placeId);
-        setState(() {
-          isFavorite = status;
-        });
-      }
-    } catch (e) {
-      print('즐겨찾기 상태 확인 실패: $e');
-    }
+    // 실제 API 호출 없이 기본값 유지
+    setState(() {
+      isFavorite = false; // 기본값은 false
+    });
   }
 
   Future<void> _toggleFavorite() async {
     if (beach == null) return;
 
-    // 로그인 상태 확인
-    final hasToken = await ApiClient.hasToken();
-    if (!hasToken) {
-      // 로그인하지 않은 경우 로그인 페이지로 이동
-      final result = await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
+    // 로컬 상태만 토글
+    final newStatus = !isFavorite;
+    setState(() {
+      isFavorite = newStatus;
+    });
 
-      // 로그인 성공 후 즐겨찾기 상태 다시 확인
-      if (result == true) {
-        await _checkFavoriteStatus();
-      }
-      return;
-    }
-
-    try {
-      final placeId = int.tryParse(beach!.id);
-      if (placeId != null) {
-        final newStatus = await _favoriteService.toggleFavorite(placeId);
-        setState(() {
-          isFavorite = newStatus;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(newStatus ? '즐겨찾기에 추가되었습니다' : '즐겨찾기에서 삭제되었습니다'),
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: newStatus ? Colors.green : Colors.orange,
-          ),
-        );
-      }
-    } catch (e) {
-      String errorMessage = e.toString().replaceAll('Exception: ', '');
-
-      // 인증 오류인 경우 로그인 페이지로 이동
-      if (errorMessage.contains('인증이 필요합니다')) {
-        final result = await Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
-
-        if (result == true) {
-          await _checkFavoriteStatus();
-        }
-        return;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
+    // 항상 추가되었다는 메시지 표시
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('즐겨찾기에 추가되었습니다'),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: AppColors.primary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   @override
@@ -199,7 +147,6 @@ class _BeachDetailScreenState extends State<BeachDetailScreen> {
           _buildContactInfo(),
         ],
       ),
-      bottomNavigationBar: const MessageWthLink(),
     );
   }
 

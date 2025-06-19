@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/place_model.dart';
 import '../services/place_service.dart';
-import '../widgets/menu_bar.dart';
+
 import '../constants/colors.dart';
 
 class RecommendationDetailScreen extends StatefulWidget {
@@ -313,7 +313,6 @@ class _RecommendationDetailScreenState
           ),
         ],
       ),
-      bottomNavigationBar: const MessageWthLink(),
     );
   }
 

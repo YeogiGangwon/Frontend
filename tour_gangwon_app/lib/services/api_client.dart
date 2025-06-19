@@ -217,4 +217,27 @@ class ApiClient {
       }
     });
   }
+
+  // 추천 해수욕장 목록 가져오기 API
+  static Future<Map<String, dynamic>> getRecommendedBeaches() async {
+    return apiCallWithRetry(() async {
+      try {
+        final dio = createDio();
+        final response = await dio.get('/recommendations/beaches/ranked');
+
+        if (response.statusCode == 200 && response.data != null) {
+          return {'success': true, 'data': response.data};
+        } else {
+          return {'success': false, 'message': '추천 데이터를 불러올 수 없습니다.'};
+        }
+      } catch (e) {
+        if (e is DioException) {
+          final errorMessage =
+              e.response?.data?['message'] ?? '추천 데이터를 불러올 수 없습니다.';
+          return {'success': false, 'message': errorMessage};
+        }
+        return {'success': false, 'message': '네트워크 오류가 발생했습니다.'};
+      }
+    });
+  }
 }
