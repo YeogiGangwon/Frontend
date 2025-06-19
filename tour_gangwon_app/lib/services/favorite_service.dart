@@ -56,7 +56,7 @@ class FavoriteService {
   /// 즐겨찾기 삭제
   Future<void> removeFavorite(int placeId) async {
     try {
-      final response = await _dio.delete('/favorites/$placeId');
+      final response = await _dio.delete('/favorites/place/$placeId');
 
       if (response.statusCode != 200) {
         throw Exception('Failed to remove favorite: ${response.statusCode}');

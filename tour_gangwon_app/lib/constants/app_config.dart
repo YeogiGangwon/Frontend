@@ -3,7 +3,7 @@ class AppConfig {
   // 실제 배포 시에는 이 값을 false로 변경하세요
   static const bool isDevelopmentMode = false;
 
-  // API 기본 URL - 환경에 따라 자동 선택
+  // API 기본 URL - 백엔드 서버 포트(8080)로 설정
   static String get apiBaseUrl => 'http://localhost:8080/api';
 
   // 개발용 자동 로그인 토큰

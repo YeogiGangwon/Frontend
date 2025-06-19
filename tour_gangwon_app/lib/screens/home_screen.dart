@@ -5,6 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:tour_gangwon_app/screens/search_result_list_screen.dart';
 import 'package:tour_gangwon_app/screens/date_selection_screen.dart';
 import 'package:tour_gangwon_app/screens/recommendation_detail_screen.dart';
+import 'package:tour_gangwon_app/screens/beach_list_screen.dart';
+import 'package:tour_gangwon_app/screens/beach_detail_screen.dart';
+import 'package:tour_gangwon_app/services/beach_service.dart';
 import 'package:tour_gangwon_app/widgets/menu_bar.dart';
 import 'package:tour_gangwon_app/constants/colors.dart';
 import 'package:tour_gangwon_app/services/api_client.dart';
@@ -36,6 +39,11 @@ class _HomeScreenState extends State<HomeScreen> {
       'title': '여행지 추천',
       'subtitle': '최적의 여행지 추천',
       'image': 'assets/images/travel.png',
+    },
+    {
+      'title': '해수욕장',
+      'subtitle': '강원도 해수욕장 정보',
+      'image': 'assets/images/beach1.png',
     },
     {
       'title': '코스 추천',
@@ -392,17 +400,62 @@ class _HomeScreenState extends State<HomeScreen> {
                         GestureDetector(
                           onTap: () async {
                             if (index == 0) {
-                              // 랜덤 추천
-                              final places = await loadPlaces();
-                              if (places.isNotEmpty) {
-                                final random = Random();
-                                final randomPlace =
-                                    places[random.nextInt(places.length)];
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => RecommendationDetailScreen(
-                                      placeId: randomPlace['id'],
+                              // 랜덤 추천 - 해수욕장 중 랜덤 선택
+                              try {
+                                await BeachService.loadBeaches();
+                                final beaches = BeachService.getAllBeaches();
+                                if (beaches.isNotEmpty) {
+                                  final random = Random();
+                                  final randomBeach =
+                                      beaches[random.nextInt(beaches.length)];
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => BeachDetailScreen(
+                                        beachId: randomBeach.id,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.error_outline,
+                                            color: Colors.white,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text('해수욕장 정보를 불러올 수 없습니다.'),
+                                        ],
+                                      ),
+                                      backgroundColor: Colors.red,
+                                      duration: const Duration(seconds: 2),
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Row(
+                                      children: [
+                                        Icon(
+                                          Icons.error_outline,
+                                          color: Colors.white,
+                                        ),
+                                        SizedBox(width: 8),
+                                        Text('랜덤 추천 중 오류가 발생했습니다.'),
+                                      ],
+                                    ),
+                                    backgroundColor: Colors.red,
+                                    duration: const Duration(seconds: 2),
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
                                 );
@@ -429,6 +482,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 );
                               }
                             } else if (index == 2) {
+                              // 해수욕장
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const BeachListScreen(),
+                                ),
+                              );
+                            } else if (index == 3) {
                               // 코스 추천
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
