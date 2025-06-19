@@ -19,20 +19,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentPage = 0;
   late PageController _pageController;
-  bool _isDevMode = false;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(viewportFraction: 0.85);
-    _checkDevMode();
-  }
-
-  Future<void> _checkDevMode() async {
-    final isDevToken = await ApiClient.isDevToken();
-    setState(() {
-      _isDevMode = isDevToken;
-    });
   }
 
   final List<Map<String, String>> _categoryItems = [
@@ -126,27 +117,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: 32,
                       height: 32,
                     ),
-                    if (_isDevMode) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Text(
-                          'DEV MODE',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
                   ],
                 ),
                 Row(

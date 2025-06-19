@@ -1,18 +1,10 @@
 class AppConfig {
   // 개발 모드 설정
   // 실제 배포 시에는 이 값을 false로 변경하세요
-  static const bool isDevelopmentMode = true;
+  static const bool isDevelopmentMode = false;
 
   // API 기본 URL - 환경에 따라 자동 선택
-  static String get apiBaseUrl {
-    if (isDevelopmentMode) {
-      // 개발 환경: 로컬 서버
-      return 'http://10.0.2.2:8080/api';
-    } else {
-      // 프로덕션 환경: 실제 서버 URL
-      return 'https://your-production-server.com/api';
-    }
-  }
+  static String get apiBaseUrl => 'http://localhost:8080/api';
 
   // 개발용 자동 로그인 토큰
   static const String devToken = 'dev_auto_login_token_for_development_only';

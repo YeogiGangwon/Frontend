@@ -6,9 +6,6 @@ class ApiClient {
   static String get baseUrl => AppConfig.apiBaseUrl;
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  // 개발용 자동 로그인 토큰 생성
-  static const String _devToken = AppConfig.devToken;
-
   static Dio createDio() {
     final dio = Dio(
       BaseOptions(
@@ -120,27 +117,6 @@ class ApiClient {
     return token != null && token.isNotEmpty;
   }
 
-  // 개발용 자동 로그인 (토큰이 없으면 자동으로 생성)
-  static Future<void> ensureDevLogin() async {
-    // 개발 모드가 비활성화되어 있으면 아무것도 하지 않음
-    if (!AppConfig.enableAutoLogin) {
-      return;
-    }
-
-    final hasExistingToken = await hasToken();
-    if (!hasExistingToken) {
-      // 개발용 토큰 자동 생성 및 저장
-      await saveToken(_devToken);
-      print('Development mode: Auto-generated token for convenience');
-    }
-  }
-
-  // 개발용 토큰인지 확인
-  static Future<bool> isDevToken() async {
-    final token = await getToken();
-    return token == _devToken;
-  }
-
   // 서버 연결 상태 확인
   static Future<bool> checkServerConnection() async {
     try {
@@ -166,13 +142,23 @@ class ApiClient {
           '/users/signup',
           data: {'email': email, 'nickname': nickname, 'password': password},
         );
-        return {'success': true, 'data': response.data};
-      } catch (e) {
-        if (e is DioException) {
+
+        // 백엔드 응답 형식에 맞춰 처리
+        if (response.data['success']) {
+          return {
+            'success': true,
+            'message': response.data['message'] ?? '회원가입이 완료되었습니다!',
+          };
+        } else {
           return {
             'success': false,
-            'message': e.response?.data['message'] ?? '회원가입에 실패했습니다.',
+            'message': response.data['message'] ?? '회원가입에 실패했습니다.',
           };
+        }
+      } catch (e) {
+        if (e is DioException) {
+          final errorMessage = e.response?.data?['message'] ?? '회원가입에 실패했습니다.';
+          return {'success': false, 'message': errorMessage};
         }
         return {'success': false, 'message': '네트워크 오류가 발생했습니다.'};
       }
@@ -187,22 +173,45 @@ class ApiClient {
     return apiCallWithRetry(() async {
       try {
         final dio = createDio();
+        print('로그인 시도: $email');
+
         final response = await dio.post(
           '/users/login',
           data: {'email': email, 'password': password},
         );
 
-        if (response.data['token'] != null) {
-          await saveToken(response.data['token']);
-        }
+        print('서버 응답: ${response.statusCode}');
+        print('응답 데이터: ${response.data}');
 
-        return {'success': true, 'data': response.data};
-      } catch (e) {
-        if (e is DioException) {
+        // 백엔드 응답 형식에 맞춰 처리
+        if (response.data['success'] == true &&
+            response.data['token'] != null) {
+          print('토큰 저장 시도: ${response.data['token']}');
+          await saveToken(response.data['token']);
+          print('토큰 저장 완료');
+
+          return {
+            'success': true,
+            'message': response.data['message'] ?? '로그인 성공!',
+            'user': response.data['user'],
+          };
+        } else {
+          print(
+            '로그인 실패: success=${response.data['success']}, token=${response.data['token']}',
+          );
           return {
             'success': false,
-            'message': e.response?.data['message'] ?? '로그인에 실패했습니다.',
+            'message': response.data['message'] ?? '로그인에 실패했습니다.',
           };
+        }
+      } catch (e) {
+        print('로그인 에러 발생: $e');
+        if (e is DioException) {
+          print(
+            'DioException 상세: ${e.response?.statusCode} - ${e.response?.data}',
+          );
+          final errorMessage = e.response?.data?['message'] ?? '로그인에 실패했습니다.';
+          return {'success': false, 'message': errorMessage};
         }
         return {'success': false, 'message': '네트워크 오류가 발생했습니다.'};
       }

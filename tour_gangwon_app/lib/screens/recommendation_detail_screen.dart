@@ -178,11 +178,11 @@ class _RecommendationDetailScreenState
                           // 위치 정보 (더 크고 명확하게)
                           Text(
                             place!.location,
-                                                      style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                           const SizedBox(height: 12),
                           // 해시태그들 (스타일 개선)
@@ -200,7 +200,9 @@ class _RecommendationDetailScreenState
                                       color: AppColors.primary.withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(20),
                                       border: Border.all(
-                                        color: AppColors.primary.withOpacity(0.3),
+                                        color: AppColors.primary.withOpacity(
+                                          0.3,
+                                        ),
                                         width: 1,
                                       ),
                                     ),
@@ -232,14 +234,14 @@ class _RecommendationDetailScreenState
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                                                   color: isFavorite 
-                             ? AppColors.primary.withOpacity(0.1)
-                             : AppColors.surfaceVariant,
+                          color: isFavorite
+                              ? AppColors.primary.withOpacity(0.1)
+                              : AppColors.surfaceVariant,
                           borderRadius: BorderRadius.circular(28),
                           border: Border.all(
-                                                       color: isFavorite 
-                               ? AppColors.primary.withOpacity(0.3)
-                               : AppColors.border,
+                            color: isFavorite
+                                ? AppColors.primary.withOpacity(0.3)
+                                : AppColors.border,
                             width: 1.5,
                           ),
                           boxShadow: [

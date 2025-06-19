@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../services/api_client.dart';
-import '../constants/app_config.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -23,27 +22,17 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     try {
-      if (AppConfig.enableAutoLogin) {
-        // 개발 모드: 자동 로그인 활성화
-        await ApiClient.ensureDevLogin();
-        Navigator.pushReplacementNamed(context, '/home');
-      } else {
-        // 프로덕션 모드: 토큰 확인 후 적절한 화면으로 이동
-        final hasToken = await ApiClient.hasToken();
-        if (hasToken) {
-          Navigator.pushReplacementNamed(context, '/home');
-        } else {
-          Navigator.pushReplacementNamed(context, '/login');
-        }
-      }
-    } catch (e) {
-      print('Auth check error: $e');
-      // 에러 발생 시 개발 모드에서는 홈으로, 프로덕션에서는 로그인으로
-      if (AppConfig.enableAutoLogin) {
+      // 토큰 확인 후 적절한 화면으로 이동
+      final hasToken = await ApiClient.hasToken();
+      if (hasToken) {
         Navigator.pushReplacementNamed(context, '/home');
       } else {
         Navigator.pushReplacementNamed(context, '/login');
       }
+    } catch (e) {
+      print('Auth check error: $e');
+      // 에러 발생 시 로그인 화면으로 이동
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
