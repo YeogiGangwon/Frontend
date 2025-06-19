@@ -6,6 +6,7 @@ import 'package:tour_gangwon_app/screens/search_result_list_screen.dart';
 import 'package:tour_gangwon_app/screens/date_selection_screen.dart';
 import 'package:tour_gangwon_app/screens/recommendation_detail_screen.dart';
 import 'package:tour_gangwon_app/widgets/menu_bar.dart';
+import 'package:tour_gangwon_app/constants/colors.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -72,11 +73,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      backgroundColor: const Color(0xFFF2F4F6),
+      backgroundColor: AppColors.background,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: Container(
-          color: const Color(0xFFF3F5F6),
+          color: AppColors.surface,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: SafeArea(
             child: Row(
@@ -271,8 +272,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: _currentPage == idx
-                                ? const Color(0xFF2250FF)
-                                : Colors.grey[300],
+                                ? AppColors.primary
+                                : AppColors.border,
                           ),
                         );
                       }),
@@ -286,11 +287,11 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: AppColors.shadow,
                     spreadRadius: 1,
                     blurRadius: 6,
                     offset: const Offset(0, 2),
@@ -309,10 +310,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 60,
                         height: 60,
                         padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F5F6),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
+                                                  decoration: BoxDecoration(
+                            color: AppColors.surfaceVariant,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         child: Image.asset(
                           item['image']!,
                           fit: BoxFit.contain,
@@ -323,11 +324,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 8),
                       Text(
                         item['title']!,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1D1B20),
-                        ),
+                                                  style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 2),
@@ -337,7 +338,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           item['subtitle']!,
                           style: const TextStyle(
                             fontSize: 11,
-                            color: Color(0xFF49454F),
+                            color: AppColors.textSecondary,
                           ),
                           textAlign: TextAlign.center,
                           maxLines: 2,
@@ -397,7 +398,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Text('코스 추천 기능은 제작 예정입니다.'),
                                 ],
                               ),
-                              backgroundColor: const Color(0xFF2250FF),
+                              backgroundColor: AppColors.primary,
                               duration: const Duration(seconds: 2),
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
@@ -417,7 +418,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Container(
                         width: 1,
                         height: 80,
-                        color: const Color(0xFFE0E0E0),
+                        color: AppColors.divider,
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                       ),
                     );
@@ -439,9 +440,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF3F5F6),
+                    color: AppColors.surface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFCAC4D0)),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: Row(
                     children: [
@@ -466,14 +467,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w400,
-                                color: Color(0xFF1D1B20),
+                                color: AppColors.textPrimary,
                               ),
                             ),
                             Text(
                               item['desc']!,
                               style: const TextStyle(
                                 fontSize: 14,
-                                color: Color(0xFF49454F),
+                                color: AppColors.textSecondary,
                               ),
                             ),
                           ],

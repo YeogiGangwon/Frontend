@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class NewsCardList extends StatelessWidget {
   final List<String> newsList;
-  const NewsCardList({Key? key, required this.newsList}) : super(key: key);
+  const NewsCardList({super.key, required this.newsList});
 
   @override
   Widget build(BuildContext context) {

@@ -4,7 +4,7 @@ class HomeSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback? onSearch;
 
-  const HomeSearchBar({Key? key, required this.controller, this.onSearch}) : super(key: key);
+  const HomeSearchBar({super.key, required this.controller, this.onSearch});
 
   @override
   Widget build(BuildContext context) {

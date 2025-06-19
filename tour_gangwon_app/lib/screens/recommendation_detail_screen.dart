@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/place_model.dart';
 import '../services/place_service.dart';
 import '../widgets/menu_bar.dart';
+import '../constants/colors.dart';
 
 class RecommendationDetailScreen extends StatefulWidget {
   final int placeId;
@@ -46,20 +47,20 @@ class _RecommendationDetailScreenState
   Widget build(BuildContext context) {
     if (isLoading) {
       return const Scaffold(
-        backgroundColor: Color(0xFFF3F5F6),
+        backgroundColor: AppColors.background,
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (place == null) {
       return const Scaffold(
-        backgroundColor: Color(0xFFF3F5F6),
+        backgroundColor: AppColors.background,
         body: Center(child: Text('장소 정보를 찾을 수 없습니다.')),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F5F6),
+      backgroundColor: AppColors.background,
       body: ListView(
         children: [
           // 이미지 및 상단 타이틀
@@ -177,11 +178,11 @@ class _RecommendationDetailScreenState
                           // 위치 정보 (더 크고 명확하게)
                           Text(
                             place!.location,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF1D1B20),
-                            ),
+                                                      style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
                           ),
                           const SizedBox(height: 12),
                           // 해시태그들 (스타일 개선)
@@ -196,12 +197,10 @@ class _RecommendationDetailScreenState
                                       vertical: 8,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFE8DEF8),
+                                      color: AppColors.primary.withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(20),
                                       border: Border.all(
-                                        color: const Color(
-                                          0xFF65558F,
-                                        ).withOpacity(0.3),
+                                        color: AppColors.primary.withOpacity(0.3),
                                         width: 1,
                                       ),
                                     ),
@@ -209,7 +208,7 @@ class _RecommendationDetailScreenState
                                       '#$tag',
                                       style: const TextStyle(
                                         fontSize: 14,
-                                        color: Color(0xFF65558F),
+                                        color: AppColors.primary,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -233,14 +232,14 @@ class _RecommendationDetailScreenState
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: isFavorite
-                              ? const Color(0xFFFFE8E8)
-                              : const Color(0xFFF3F5F6),
+                                                   color: isFavorite 
+                             ? AppColors.primary.withOpacity(0.1)
+                             : AppColors.surfaceVariant,
                           borderRadius: BorderRadius.circular(28),
                           border: Border.all(
-                            color: isFavorite
-                                ? Colors.red.withOpacity(0.3)
-                                : const Color(0xFFCAC4D0),
+                                                       color: isFavorite 
+                               ? AppColors.primary.withOpacity(0.3)
+                               : AppColors.border,
                             width: 1.5,
                           ),
                           boxShadow: [

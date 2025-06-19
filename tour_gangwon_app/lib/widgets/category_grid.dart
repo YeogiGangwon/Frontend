@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CategoryGrid extends StatelessWidget {
   final List<CategoryItem> items;
   final int crossAxisCount;
-  const CategoryGrid({Key? key, required this.items, this.crossAxisCount = 4}) : super(key: key);
+  const CategoryGrid({super.key, required this.items, this.crossAxisCount = 4});
 
   @override
   Widget build(BuildContext context) {

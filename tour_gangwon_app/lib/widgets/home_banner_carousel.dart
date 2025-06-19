@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class HomeBannerCarousel extends StatelessWidget {
   final List<Map<String, String>> banners;
-  const HomeBannerCarousel({Key? key, required this.banners}) : super(key: key);
+  const HomeBannerCarousel({super.key, required this.banners});
 
   @override
   Widget build(BuildContext context) {

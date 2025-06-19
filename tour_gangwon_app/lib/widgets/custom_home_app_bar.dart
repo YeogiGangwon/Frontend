@@ -10,7 +10,7 @@ class CustomHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool hasNotification;
 
   const CustomHomeAppBar({
-    Key? key,
+    super.key,
     required this.location,
     this.onLocationTap,
     required this.searchController,
@@ -18,7 +18,7 @@ class CustomHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onBookmark,
     this.onNotification,
     this.hasNotification = false,
-  }) : super(key: key);
+  });
 
   @override
   Size get preferredSize => const Size.fromHeight(80);
